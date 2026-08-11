@@ -51,13 +51,13 @@
                                 <img src="https://via.placeholder.com/600x400?text=No+Image" class="card-img-top" alt="No image">
                             @endif
                             <div class="card-body d-flex flex-column">
-                                <h5 class="card-title"><a href="{{ route('products.show', ['brand' => $p->brand_slug, 'product' => $p->slug]) }}">{{ $p->name }}</a></h5>
+                                <h5 class="card-title"><a href="{{ route('products.show', $p) }}">{{ $p->name }}</a></h5>
                                 <p class="text-muted mb-2">{{ $p->brand }}</p>
                                 <p class="text-muted small">{{ \Illuminate\Support\Str::limit($p->description, 120) }}</p>
                                 <div class="mt-auto d-flex justify-content-between align-items-center">
                                     <div class="fw-bold text-danger">{{ $p->price ? number_format($p->price, 0, ',', '.') . ' ₫' : 'Contact' }}</div>
                                     <div>
-                                        <a class="btn btn-sm btn-outline-primary" href="{{ route('products.show', ['brand' => $p->brand_slug, 'product' => $p->slug]) }}">View</a>
+                                        <a class="btn btn-sm btn-outline-primary" href="{{ route('products.show', $p) }}">View</a>
                                         @if(auth()->check() && (auth()->user()->is_admin ?? false))
                                             <a class="btn btn-sm btn-outline-secondary" href="{{ route('products.edit', $p) }}">Edit</a>
                                             <form action="{{ route('products.destroy', $p) }}" method="POST" style="display:inline">

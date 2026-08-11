@@ -3,165 +3,126 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Brand;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $categories = Category::withCount('products')->get();
-        $brands = Brand::where('status', 'active')->orderBy('name')->get();
 
-        $query = Product::with(['category', 'brand'])->where('status', true);
+        $query = Product::with('category')->orderBy('created_at', 'desc');
 
-        if ($request->filled('brand')) {
-            $query->whereHas('brand', function ($q) use ($request) {
-                $q->where('slug', $request->brand);
-            });
+        $selected = null;
+        if (request()->has('category') && $cid = request()->get('category')) {
+            $query->where('category_id', $cid);
+            $selected = $cid;
         }
 
-        if ($request->filled('category')) {
-            $categoryValue = $request->category;
-            $query->whereHas('category', function ($q) use ($categoryValue) {
-                if (is_numeric($categoryValue)) {
-                    $q->where('id', $categoryValue);
-                } else {
-                    $q->where('slug', $categoryValue);
-                }
-            });
-        }
+        $products = $query->paginate(12)->withQueryString();
 
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('model', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        $products = $query->latest()->paginate(12)->withQueryString();
-
-        return view('products.index', compact('products', 'categories', 'brands'));
+        return view('products.index', compact('products', 'categories', 'selected'));
     }
 
     public function create()
     {
         $categories = Category::all();
-        $brands = Brand::all();
         $selectedCategory = request()->get('category_id');
-        return view('products.create', compact('categories', 'brands', 'selectedCategory'));
+        return view('products.create', compact('categories', 'selectedCategory'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'brand_id' => 'nullable|exists:brands,id',
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:products,slug',
+            'brand' => 'nullable|string|max:255',
             'model' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'price' => 'nullable|numeric',
-            'sale_price' => 'nullable|numeric',
-            'rating' => 'nullable|numeric|min:0|max:5',
-            'stock' => 'nullable|integer|min:0',
-            'badge' => 'nullable|string|max:50',
-            'ram' => 'nullable|string|max:50',
-            'storage' => 'nullable|string|max:50',
             'specs' => 'nullable',
             'image' => 'nullable|image|max:2048',
-            'status' => 'nullable|boolean',
         ]);
 
-        if (is_string($request->input('specs'))) {
-            $decoded = json_decode($request->input('specs'), true);
+        // Accept specs as JSON string or array inputs
+        $specs = $request->input('specs');
+        if (is_string($specs)) {
+            $decoded = json_decode($specs, true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                $validated['specs'] = $decoded;
+                $data['specs'] = $decoded;
             }
+        } elseif (is_array($specs)) {
+            $data['specs'] = $specs;
         }
 
+        // handle image upload
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $path = $request->file('image')->store('products', 'public');
+            $data['image'] = $path;
         }
 
-        $validated['slug'] = $validated['slug'] ?? Str::slug($validated['name']);
-        $validated['status'] = $validated['status'] ?? true;
+        Product::create($data);
 
-        Product::create($validated);
-
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+        return redirect()->route('products.index')->with('success', 'Product created.');
     }
 
-    public function show(Brand $brand, Product $product)
+    public function show(Product $product)
     {
-        if ($product->brand_id !== $brand->id) {
-            abort(404);
-        }
-
-        $product->load(['category', 'brand']);
+        $product->load('category');
         return view('products.show', compact('product'));
     }
 
     public function edit(Product $product)
     {
         $categories = Category::all();
-        $brands = Brand::all();
-        return view('products.edit', compact('product', 'categories', 'brands'));
+        return view('products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'brand_id' => 'nullable|exists:brands,id',
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:products,slug,' . $product->id,
+            'brand' => 'nullable|string|max:255',
             'model' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'price' => 'nullable|numeric',
-            'sale_price' => 'nullable|numeric',
-            'rating' => 'nullable|numeric|min:0|max:5',
-            'stock' => 'nullable|integer|min:0',
-            'badge' => 'nullable|string|max:50',
-            'ram' => 'nullable|string|max:50',
-            'storage' => 'nullable|string|max:50',
             'specs' => 'nullable',
             'image' => 'nullable|image|max:2048',
-            'status' => 'nullable|boolean',
         ]);
-
-        if (is_string($request->input('specs'))) {
-            $decoded = json_decode($request->input('specs'), true);
+        $specs = $request->input('specs');
+        if (is_string($specs)) {
+            $decoded = json_decode($specs, true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                $validated['specs'] = $decoded;
+                $data['specs'] = $decoded;
             }
+        } elseif (is_array($specs)) {
+            $data['specs'] = $specs;
         }
 
+        // handle image upload (replace old)
         if ($request->hasFile('image')) {
+            // delete old if exists
             if ($product->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($product->image)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image);
             }
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $path = $request->file('image')->store('products', 'public');
+            $data['image'] = $path;
         }
 
-        $validated['slug'] = $validated['slug'] ?? Str::slug($validated['name']);
-        $validated['status'] = $validated['status'] ?? true;
+        $product->update($data);
 
-        $product->update($validated);
-
-        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+        return redirect()->route('products.index')->with('success', 'Product updated.');
     }
 
     public function destroy(Product $product)
     {
+        // delete image if exists
         if ($product->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($product->image)) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image);
         }
-
         $product->delete();
-
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+        return redirect()->route('products.index')->with('success', 'Product deleted.');
     }
 }

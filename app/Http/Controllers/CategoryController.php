@@ -24,10 +24,7 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        Category::create([
-            'name' => $request->input('name'),
-            'slug' => \Illuminate\Support\Str::slug($request->input('name')),
-        ]);
+        Category::create($request->all());
 
         return redirect()->route('categories.index')
                          ->with('success', 'Category created successfully.');
@@ -50,10 +47,7 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $category->update([
-            'name' => $request->input('name'),
-            'slug' => \Illuminate\Support\Str::slug($request->input('name')),
-        ]);
+        $category->update($request->all());
 
         return redirect()->route('categories.index')
                          ->with('success', 'Category updated successfully.');
