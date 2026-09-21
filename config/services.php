@@ -35,4 +35,24 @@ return [
         ],
     ],
 
+    'ghn' => [
+        'base_url'         => env('GHN_BASE_URL', 'https://dev-online-gateway.ghn.vn/shiip/public-api'),
+        'token'            => env('GHN_TOKEN'),
+        'shop_id'          => env('GHN_SHOP_ID'),
+        'verify_ssl'       => env('GHN_VERIFY_SSL', false),
+        'from_district_id' => env('GHN_FROM_DISTRICT_ID', 1450),
+        'default_weight'   => 200,
+    ],
+
+    'momo' => [
+        'endpoint'     => env('MOMO_ENDPOINT', 'https://test-payment.momo.vn/v2/gateway/api/create'),
+        'partner_code' => env('MOMO_PARTNER_CODE', 'MOMOBKUN20180529'),
+        'access_key'   => env('MOMO_ACCESS_KEY', 'klm05TvNBzhg7h7j'),
+        'secret_key'   => env('MOMO_SECRET_KEY', 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa'),
+        'request_type' => env('MOMO_REQUEST_TYPE', 'payWithATM'),
+        'verify_ssl'   => env('MOMO_VERIFY_SSL', false),
+        'redirect_url' => env('MOMO_REDIRECT_URL'),
+        'ipn_url'      => env('MOMO_IPN_URL'),
+    ],
+
 ];

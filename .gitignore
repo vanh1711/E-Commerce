@@ -22,3 +22,9 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/.agent
+/.agents
+/.gemini
+/.impeccable
+scratch.php
+

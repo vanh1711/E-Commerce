@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -21,6 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'role',
         'password',
         'is_admin',
     ];
@@ -51,5 +52,47 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return (bool) ($this->is_admin ?? false);
+    }
+
+    /**
+     * Danh sách sổ địa chỉ nhận hàng của người dùng
+     */
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
+    /**
+     * Địa chỉ mặc định (is_default = true), fallback về địa chỉ mới nhất
+     */
+    public function defaultAddress()
+    {
+        return $this->hasOne(UserAddress::class)
+                    ->where('is_default', true)
+                    ->withDefault();
+    }
+
+    /**
+     * Tin nhắn đã gửi
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
+     * Danh sách đơn hàng của người dùng
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Tin nhắn đã nhận
+     */
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
     }
 }

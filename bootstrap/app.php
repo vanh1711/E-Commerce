@@ -11,7 +11,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Đăng ký alias 'admin' cho Laravel 11
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        ]);
+
+        // Bypass CSRF cho các Webhook từ cổng bên thứ 3 (GHN, MoMo IPN)
+        $middleware->validateCsrfTokens(except: [
+            'api/ghn/webhook',
+            'ghn/webhook',
+            'payment/momo/ipn',
+            'payment/momo/*',
+            'payment/ipn',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
