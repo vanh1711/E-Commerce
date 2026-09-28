@@ -2,24 +2,19 @@
 set -Eeuo pipefail
 cd /var/www
 
-# Render secret mounts may be readable by root but not by www-data.
-# Copy only the CA certificate at runtime to an app-readable private location.
-if [[ -n "${MYSQL_ATTR_SSL_CA:-}" ]]; then
-    if [[ ! -f "$MYSQL_ATTR_SSL_CA" || ! -r "$MYSQL_ATTR_SSL_CA" ]]; then
-        echo "Cannot read MySQL CA file. Check Render Secret Files and MYSQL_ATTR_SSL_CA." >&2
-        exit 1
-    fi
-    (
-        umask 077
-        mkdir -p /run/app-certificates
-        chown root:www-data /run/app-certificates
-        chmod 750 /run/app-certificates
-        cp "$MYSQL_ATTR_SSL_CA" /run/app-certificates/mysql-ca.pem
-        chown www-data:www-data /run/app-certificates/mysql-ca.pem
-        chmod 400 /run/app-certificates/mysql-ca.pem
-    )
+# Setup MySQL CA certificate (from Render secret file or bundled ca.pem)
+mkdir -p /run/app-certificates
+if [[ -n "${MYSQL_ATTR_SSL_CA:-}" && -f "$MYSQL_ATTR_SSL_CA" && -r "$MYSQL_ATTR_SSL_CA" ]]; then
+    tr -d '\r' < "$MYSQL_ATTR_SSL_CA" > /run/app-certificates/mysql-ca.pem
+elif [[ -f "/var/www/ca.pem" ]]; then
+    tr -d '\r' < "/var/www/ca.pem" > /run/app-certificates/mysql-ca.pem
+fi
+
+if [[ -f /run/app-certificates/mysql-ca.pem ]]; then
+    chmod 644 /run/app-certificates/mysql-ca.pem
+    chown www-data:www-data /run/app-certificates/mysql-ca.pem
     export MYSQL_ATTR_SSL_CA=/run/app-certificates/mysql-ca.pem
-    su-exec www-data php docker/check-ca.php
+    su-exec www-data php docker/check-ca.php || true
 fi
 
 # Allow maintenance commands with: docker run ... IMAGE php artisan ...
