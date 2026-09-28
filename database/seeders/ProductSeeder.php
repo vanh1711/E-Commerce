@@ -10,9 +10,9 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        $phoneCategory = Category::firstOrCreate(['name' => 'Điện Thoại'], ['description' => 'Flagship smartphones chính hãng.']);
-        $tabletCategory = Category::firstOrCreate(['name' => 'Máy Tính Bảng'], ['description' => 'iPad và máy tính bảng.']);
-        $accCategory = Category::firstOrCreate(['name' => 'Phụ Kiện'], ['description' => 'Phụ kiện công nghệ.']);
+        $phoneCategory = Category::firstOrCreate(['name' => 'Điện Thoại']);
+        $tabletCategory = Category::firstOrCreate(['name' => 'Máy Tính Bảng']);
+        $accCategory = Category::firstOrCreate(['name' => 'Phụ Kiện']);
 
         $products = [
             [
@@ -128,19 +128,21 @@ class ProductSeeder extends Seeder
         ];
 
         foreach ($products as $p) {
-            Product::firstOrCreate(
+            $stock = $p['stock'] ?? 20;
+            unset($p['stock']);
+            $created = Product::firstOrCreate(
                 ['name' => $p['name']],
-                [
-                    'category_id' => $p['category_id'],
-                    'brand'       => $p['brand'],
-                    'model'       => $p['model'],
-                    'description' => $p['description'],
-                    'price'       => $p['price'],
-                    'stock'       => $p['stock'],
-                    'weight'      => $p['weight'],
-                    'tags'        => $p['tags'],
-                ]
+                $p
             );
+            if ($created && $created->variants()->count() === 0) {
+                $created->variants()->create([
+                    'version_name' => 'Tiêu Chuẩn',
+                    'sku'          => ($created->brand ? strtoupper(substr($created->brand, 0, 3)) : 'PROD') . '-' . $created->id . '-STD',
+                    'price'        => $created->price,
+                    'stock'        => $stock,
+                    'weight'       => $created->weight ?? 200,
+                ]);
+            }
         }
     }
 }

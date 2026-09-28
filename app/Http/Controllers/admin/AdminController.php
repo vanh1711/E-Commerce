@@ -17,8 +17,10 @@ class AdminController extends Controller
         $categoryCount    = Category::count();
         $productCount     = Product::count();
         $userCount        = User::count();
-        $totalStock       = Product::sum('stock') ?? 0;
-        $totalValue       = Product::selectRaw('SUM(price * stock) as total')->value('total') ?? 0;
+        $variantStock     = ProductVariant::sum('stock') ?? 0;
+        $totalStock       = $variantStock > 0 ? $variantStock : (Product::sum('stock') ?? 0);
+        $variantValue     = ProductVariant::selectRaw('SUM(price * stock) as total')->value('total') ?? 0;
+        $totalValue       = $variantValue > 0 ? $variantValue : (Product::selectRaw('SUM(price * stock) as total')->value('total') ?? 0);
 
         // 2. Thống kê đơn hàng & Doanh thu
         $totalOrders      = Order::count();
@@ -34,9 +36,11 @@ class AdminController extends Controller
                             })->sum('total_amount') ?? 0;
 
         // 3. Sản phẩm cảnh báo tồn kho thấp (<= 5 máy)
-        $lowStockProducts = Product::with('category')
+        $lowStockProducts = Product::with(['category', 'variants'])
                                 ->where('stock', '<=', 5)
-                                ->orderBy('stock', 'asc')
+                                ->orWhereHas('variants', function($q) {
+                                    $q->where('stock', '<=', 5);
+                                })
                                 ->take(5)
                                 ->get();
 
