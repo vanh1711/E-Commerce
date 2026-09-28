@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Tin cậy Reverse Proxy từ Render (HTTPS / SSL termination)
+        $middleware->trustProxies(at: '*');
+
         // Đăng ký alias 'admin' cho Laravel 11
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
