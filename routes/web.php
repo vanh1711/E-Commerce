@@ -154,6 +154,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports.index');
     Route::get('/reports/charts', [\App\Http\Controllers\Admin\ReportController::class, 'charts'])->name('admin.reports.charts');
 
+    // ===== BÁO CÁO TÀI CHÍNH & GIAO DỊCH (LAB 09 - FINANCE) =====
+    Route::get('/finance', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('admin.finance.index');
+    Route::get('/finance/transactions', [\App\Http\Controllers\Admin\FinanceController::class, 'transactions'])->name('admin.finance.transactions');
+    Route::patch('/finance/{order}/status', [\App\Http\Controllers\Admin\FinanceController::class, 'updateStatus'])->name('admin.finance.update-status');
+
     // Quản lý đơn hàng & Ship hàng
     Route::get('/orders', [\App\Http\Controllers\Admin\AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::post('/orders/bulk-update', [\App\Http\Controllers\Admin\AdminOrderController::class, 'bulkUpdate'])->name('admin.orders.bulk-update');

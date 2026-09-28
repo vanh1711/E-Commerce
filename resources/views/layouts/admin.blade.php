@@ -249,12 +249,18 @@
 
                     <!-- Nhóm 5: REPORTS & FINANCIAL (Báo cáo & Tài chính) -->
                     <div>
-                        <span class="px-3 text-[10px] font-black uppercase text-slate-400 tracking-wider">Thống Kê & Báo Cáo</span>
+                        <span class="px-3 text-[10px] font-black uppercase text-slate-400 tracking-wider">Thống Kê & Tài Chính</span>
                         <div class="mt-2 space-y-1">
-                            <a href="{{ route('admin.reports.index') }}" 
-                               class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('admin.reports.index') ? 'bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <a href="{{ route('admin.finance.index') }}" 
+                               class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('admin.finance.index') ? 'bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
                                 <span class="text-base">📈</span>
                                 <span>Thống Kê Tài Chính</span>
+                            </a>
+
+                            <a href="{{ route('admin.finance.transactions') }}" 
+                               class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl transition-all duration-200 {{ request()->routeIs('admin.finance.transactions') ? 'bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                                <span class="text-base">💳</span>
+                                <span>Giao Dịch Thanh Toán</span>
                             </a>
 
                             <a href="{{ route('admin.reports.charts') }}" 
