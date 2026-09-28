@@ -137,7 +137,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     
     // CRUD Sản phẩm & Danh mục (categories.*, products.*)
     Route::resource('categories', CategoryController::class);
-    Route::resource('products', ProductController::class);
+    Route::resource('products', ProductController::class)->except(['index', 'show']);
+    Route::get('products', [ProductController::class, 'index']);
 
     // Quản lý người dùng (Lab 08)
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->names([
