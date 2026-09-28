@@ -27,8 +27,14 @@ if (( $# > 0 )); then
     exec su-exec www-data "$@"
 fi
 
-:"${APP_KEY:?Set a persistent APP_KEY before starting the application}"
-:"${APP_URL:?Set APP_URL to the public HTTPS address}"
+if [[ -z "${APP_KEY:-}" ]]; then
+    echo "Set a persistent APP_KEY before starting the application" >&2
+    exit 1
+fi
+
+if [[ -z "${APP_URL:-}" ]]; then
+    export APP_URL="http://localhost:${PORT:-10000}"
+fi
 
 export PORT="${PORT:-10000}"
 if [[ ! "$PORT" =~ ^[0-9]{1,5}$ ]] || (( 10#$PORT < 1 || 10#$PORT > 65535 )); then
