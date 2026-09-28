@@ -20,7 +20,7 @@
                     <span>⚡</span> Bảng Điều Khiển Quản Trị Flagship
                 </div>
                 <h1 class="text-2xl sm:text-3xl font-black tracking-tight">
-                    Xin chào, {{ Auth::user()->name }} 👋
+                    Xin chào, {{ auth()->user()?->name ?? 'Admin' }} 👋
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
                     Hệ thống đang hoạt động ổn định. Bạn có <span class="font-bold text-amber-400">{{ $pendingOrders }}</span> đơn hàng đang chờ xử lý và <span class="font-bold text-emerald-400">{{ $lowStockProducts->count() }}</span> cảnh báo tồn kho cần chú ý.

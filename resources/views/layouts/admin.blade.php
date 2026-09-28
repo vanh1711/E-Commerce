@@ -295,10 +295,10 @@
                 <div class="flex items-center justify-between gap-3">
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-sm uppercase shadow-md flex-shrink-0">
-                            {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                            {{ strtoupper(substr(Auth::user()?->name ?? 'A', 0, 1)) }}
                         </div>
                         <div class="min-w-0">
-                            <p class="font-bold text-xs text-white truncate">{{ Auth::user()->name ?? 'Administrator' }}</p>
+                            <p class="font-bold text-xs text-white truncate">{{ Auth::user()?->name ?? 'Administrator' }}</p>
                             <span class="text-[10px] font-semibold text-blue-400 block truncate">Quản Trị Viên</span>
                         </div>
                     </div>
@@ -377,10 +377,10 @@
                         <button onclick="toggleAdminHeaderMenu()" type="button" 
                                 class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl transition cursor-pointer">
                             <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xs font-black uppercase shadow-sm">
-                                {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                                {{ strtoupper(substr(Auth::user()?->name ?? 'A', 0, 1)) }}
                             </div>
                             <div class="hidden sm:block text-left pr-1">
-                                <p class="text-xs font-black text-slate-900 dark:text-white leading-none max-w-[120px] truncate">{{ Auth::user()->name ?? 'Admin' }}</p>
+                                <p class="text-xs font-black text-slate-900 dark:text-white leading-none max-w-[120px] truncate">{{ Auth::user()?->name ?? 'Admin' }}</p>
                                 <span class="text-[9px] font-bold text-slate-400 leading-none">Quản trị viên</span>
                             </div>
                             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -389,8 +389,8 @@
                         <!-- Menu Dropdown -->
                         <div id="adminHeaderMenu" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50 animate-in fade-in slide-in-from-top-2">
                             <div class="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800">
-                                <p class="text-xs font-bold text-slate-900 dark:text-white">{{ Auth::user()->name ?? 'Admin' }}</p>
-                                <p class="text-[10px] text-slate-400 truncate">{{ Auth::user()->email ?? 'admin@example.com' }}</p>
+                                <p class="text-xs font-bold text-slate-900 dark:text-white">{{ Auth::user()?->name ?? 'Admin' }}</p>
+                                <p class="text-[10px] text-slate-400 truncate">{{ Auth::user()?->email ?? 'admin@example.com' }}</p>
                             </div>
                             <div class="p-1 space-y-0.5 text-xs font-semibold">
                                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
