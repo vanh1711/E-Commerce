@@ -59,7 +59,7 @@ RUN mkdir -p bootstrap/cache storage/framework/cache/data \
 FROM php-base AS production
 
 ENV APP_ENV=production \
-    APP_DEBUG=false \
+    APP_DEBUG=true \
     LOG_CHANNEL=stderr \
     LOG_LEVEL=info \
     DB_CONNECTION=mysql \
