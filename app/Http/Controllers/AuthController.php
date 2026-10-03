@@ -28,6 +28,17 @@ class AuthController extends Controller
         ]);
         // Thử xác thực tài khoản
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            // Kiểm tra trạng thái khóa tài khoản
+            if (Auth::user()->isLocked()) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Tài khoản của bạn đã bị khóa bởi Quản trị viên. Vui lòng liên hệ hỗ trợ.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
             // 1. NẾU LÀ ADMIN: VÀO THẲNG DASHBOARD QUẢN TRỊ
             if (Auth::user()->is_admin == 1 || Auth::user()->role === 'admin' || Auth::user()->email === 'admin@gmail.com' || Auth::user()->email === 'admin@example.com') {

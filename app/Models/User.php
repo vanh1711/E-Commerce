@@ -24,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'password',
         'is_admin',
+        'is_locked',
     ];
 
     /**
@@ -46,12 +47,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_locked' => 'boolean',
         ];
     }
 
     public function isAdmin(): bool
     {
         return (bool) ($this->is_admin ?? false);
+    }
+
+    public function isLocked(): bool
+    {
+        return (bool) ($this->is_locked ?? false);
     }
 
     /**

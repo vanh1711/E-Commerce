@@ -150,6 +150,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         'update'  => 'admin.users.update',
         'destroy' => 'admin.users.destroy',
     ]);
+    Route::patch('/users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
 
     // Báo cáo & Thống kê doanh thu (Lab 08)
     Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports.index');

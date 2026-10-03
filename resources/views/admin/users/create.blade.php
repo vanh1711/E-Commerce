@@ -101,6 +101,18 @@
                        class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition">
             </div>
 
+            <!-- Trạng thái ban đầu -->
+            <div>
+                <label class="block text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                    Trạng Thái Tài Khoản Ban Đầu <span class="text-rose-500">*</span>
+                </label>
+                <select name="is_locked" 
+                        class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition">
+                    <option value="0" {{ old('is_locked', 0) == 0 ? 'selected' : '' }}>🟢 Hoạt động (Cho phép đăng nhập ngay)</option>
+                    <option value="1" {{ old('is_locked') == 1 ? 'selected' : '' }}>🔒 Khóa tạm thời (Chặn đăng nhập)</option>
+                </select>
+            </div>
+
             <!-- Submit Button -->
             <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
                 <a href="{{ route('admin.users.index') }}" 
