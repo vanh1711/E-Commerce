@@ -20,14 +20,14 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
-        Category::create($request->all());
+        Category::create($validated);
 
         return redirect()->route('categories.index')
-                         ->with('success', 'Category created successfully.');
+                         ->with('success', 'Tạo danh mục mới thành công.');
     }
 
     public function show(Category $category)
@@ -43,21 +43,29 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
-        $category->update($request->all());
+        $category->update($validated);
 
         return redirect()->route('categories.index')
-                         ->with('success', 'Category updated successfully.');
+                         ->with('success', 'Cập nhật danh mục thành công.');
     }
 
     public function destroy(Category $category)
     {
+        // Chống xóa dây chuyền toàn bộ sản phẩm trong danh mục (Fix lỗi #13)
+        $productCount = $category->products()->count();
+        if ($productCount > 0) {
+            return redirect()->route('categories.index')
+                ->with('error', "Không thể xóa danh mục [{$category->name}] vì đang có {$productCount} sản phẩm liên kết. Vui lòng chuyển hoặc xóa các sản phẩm đó trước.");
+        }
+
+        $categoryName = $category->name;
         $category->delete();
 
         return redirect()->route('categories.index')
-                         ->with('success', 'Category deleted successfully.');
+                         ->with('success', "Đã xóa danh mục [{$categoryName}] thành công.");
     }
 }

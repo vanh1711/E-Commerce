@@ -58,6 +58,7 @@
         <!-- Tọa độ GPS ẩn gửi lên server -->
         <input type="hidden" name="latitude" id="input_latitude" value="21.028511">
         <input type="hidden" name="longitude" id="input_longitude" value="105.854444">
+        <input type="hidden" name="selected_ids" value="{{ implode(',', array_keys($checkoutCart)) }}">
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             

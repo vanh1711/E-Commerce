@@ -15,8 +15,8 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Kiểm tra đăng nhập và is_admin == 1 (hoặc role == 'admin')
-        if (Auth::check() && (Auth::user()->is_admin == 1 || Auth::user()->role === 'admin')) {
+        // Kiểm tra đăng nhập và quyền Admin chuẩn thống nhất
+        if (Auth::check() && Auth::user()->isAdmin()) {
             return $next($request);
         }
         // Nếu không phải Admin, chuyển hướng về trang chủ 'home' kèm thông báo lỗi

@@ -19,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
 
+        // Kiểm tra và đẩy ra nếu tài khoản bị khóa trong phiên đang hoạt động
+        $middleware->web(append: [
+            \App\Http\Middleware\CheckUserLocked::class,
+        ]);
+
         // Bypass CSRF cho các Webhook từ cổng bên thứ 3 (GHN, MoMo IPN)
         $middleware->validateCsrfTokens(except: [
             'api/ghn/webhook',

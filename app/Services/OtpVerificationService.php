@@ -28,8 +28,12 @@ class OtpVerificationService
             'created_at' => now()->timestamp,
         ], now()->addMinutes($this->otpExpiryMinutes));
 
-        // Lưu vào session để hỗ trợ hiển thị/demo tức thì
-        session(['last_generated_otp' => $otp]);
+        // Chỉ lưu vào session khi đang ở môi trường phát triển (Local) để hỗ trợ demo/kiểm thử
+        if (app()->isLocal()) {
+            session(['last_generated_otp' => $otp]);
+        } else {
+            session()->forget('last_generated_otp');
+        }
 
         // 3. Tiến hành gửi mã qua các kênh API
         $sendResult = $this->dispatchViaApi($user, $otp);
@@ -52,12 +56,14 @@ class OtpVerificationService
         $cachedData = Cache::get($cacheKey);
 
         if (!$cachedData) {
-            // Kiểm tra thêm session fallback nếu Cache bị dọn dẹp
-            $sessionOtp = session('last_generated_otp');
-            if ($sessionOtp && $inputOtp === trim((string) $sessionOtp)) {
-                $user->markEmailAsVerified();
-                session()->forget('last_generated_otp');
-                return true;
+            // Kiểm tra thêm session fallback nếu ở môi trường Local
+            if (app()->isLocal()) {
+                $sessionOtp = session('last_generated_otp');
+                if ($sessionOtp && $inputOtp === trim((string) $sessionOtp)) {
+                    $user->markEmailAsVerified();
+                    session()->forget('last_generated_otp');
+                    return true;
+                }
             }
             return false;
         }
@@ -88,11 +94,10 @@ class OtpVerificationService
         $subject = "[PhoneStore] Mã xác thực OTP của bạn là: {$otp}";
         $htmlContent = $this->buildEmailTemplate($user->name, $otp);
 
-        // KÊNH 1: Brevo (Sendinblue) REST API (HTTPS Endpoint)
+        // KÊNH 1: Brevo (Sendinblue) REST API (HTTPS Endpoint) với kiểm tra SSL an toàn
         if (!empty($brevoKey)) {
             try {
-                $response = Http::withoutVerifying()
-                    ->baseUrl('https://api.brevo.com/v3')
+                $response = Http::baseUrl('https://api.brevo.com/v3')
                     ->timeout(6)
                     ->withHeaders([
                         'api-key'      => $brevoKey,
@@ -117,11 +122,10 @@ class OtpVerificationService
             }
         }
 
-        // KÊNH 2: Resend REST API (HTTPS Endpoint)
+        // KÊNH 2: Resend REST API (HTTPS Endpoint) với kiểm tra SSL an toàn
         if (!empty($resendKey)) {
             try {
-                $response = Http::withoutVerifying()
-                    ->baseUrl('https://api.resend.com')
+                $response = Http::baseUrl('https://api.resend.com')
                     ->timeout(6)
                     ->withHeaders([
                         'Authorization' => 'Bearer ' . $resendKey,

@@ -107,16 +107,15 @@ class CheckoutController extends Controller
         try {
             $url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($query . ', Việt Nam') . "&limit=5&addressdetails=1";
             
-            $ctx = stream_context_create([
-                'http' => [
-                    'header' => "User-Agent: PhoneStoreApp/1.0 (contact: support@phonestore.vn)\r\n"
-                ]
-            ]);
-            
-            $response = @file_get_contents($url, false, $ctx);
-            if ($response) {
-                $data = json_decode($response, true);
-                if (!empty($data)) {
+            $res = \Illuminate\Support\Facades\Http::timeout(3)
+                ->withHeaders([
+                    'User-Agent' => 'PhoneStoreApp/1.0 (contact: support@phonestore.vn)'
+                ])
+                ->get($url);
+
+            if ($res->successful()) {
+                $data = $res->json();
+                if (!empty($data) && is_array($data)) {
                     return response()->json([
                         'success' => true,
                         'results' => array_map(fn($item) => [
@@ -178,22 +177,60 @@ class CheckoutController extends Controller
             'province_name'    => 'nullable|string',
             'district_name'    => 'nullable|string',
             'ward_name'        => 'nullable|string',
-            'payment_method'   => 'required|in:cod,momo,bank_transfer,card',
+            'payment_method'   => 'required|in:cod,momo,bank_transfer',
             'shipping_fee'     => 'nullable|numeric|min:0',
             'latitude'         => 'nullable|numeric',
             'longitude'        => 'nullable|numeric',
+            'selected_ids'     => 'nullable|string',
         ]);
 
-        $cart = session()->get('cart', []);
-        if (empty($cart)) {
+        $fullCart = session()->get('cart', []);
+        if (empty($fullCart)) {
             return redirect()->route('cart.index')->with('error', 'Giỏ hàng đã hết hạn hoặc đang trống.');
         }
 
-        $subtotal = collect($cart)->sum(fn($i) => $i['price'] * $i['quantity']);
-        $weight   = collect($cart)->sum(fn($i) => (int)($i['weight'] ?? 200) * (int)$i['quantity']);
+        // Lọc các item được chọn thanh toán nếu có truyền selected_ids (Fix lỗi #9)
+        $selectedIds = $request->input('selected_ids');
+        if ($selectedIds) {
+            $idsArray = is_array($selectedIds) ? $selectedIds : explode(',', $selectedIds);
+            $cart = array_filter($fullCart, fn($key) => in_array($key, $idsArray), ARRAY_FILTER_USE_KEY);
+        } else {
+            $cart = $fullCart;
+        }
 
-        // Tính phí ship từ GHN nếu có to_district_id & to_ward_code
-        $shippingFee = (float) $request->input('shipping_fee', 0);
+        if (empty($cart)) {
+            $cart = $fullCart;
+        }
+
+        // Đồng bộ và tính lại giá và khối lượng từ Database máy chủ (Chống giả mạo giá client)
+        $subtotal = 0;
+        $weight   = 0;
+        foreach ($cart as $key => &$cItem) {
+            $itemPrice = (float) $cItem['price'];
+            $itemWeight = (int) ($cItem['weight'] ?? 200);
+
+            if (!empty($cItem['variant_id'])) {
+                $v = ProductVariant::find($cItem['variant_id']);
+                if ($v) {
+                    $itemPrice = (float) $v->price;
+                    $itemWeight = (int) $v->weight;
+                }
+            } elseif (!empty($cItem['id'])) {
+                $p = Product::find($cItem['id']);
+                if ($p) {
+                    $itemPrice = (float) $p->price;
+                }
+            }
+
+            $cItem['price'] = $itemPrice;
+            $cItem['weight'] = $itemWeight;
+            $subtotal += $itemPrice * (int) $cItem['quantity'];
+            $weight   += $itemWeight * (int) $cItem['quantity'];
+        }
+        unset($cItem);
+
+        // Tính phí ship chuẩn xác trên máy chủ (Chống giả mạo phí ship 0đ từ client - Fix lỗi #3)
+        $shippingFee = 0;
         if ($request->filled('to_district_id') && $request->filled('to_ward_code')) {
             $feeRes = $ghn->calculateFee(array_merge([
                 'from_district_id' => (int) config('services.ghn.from_district_id', 1450),
@@ -204,20 +241,21 @@ class CheckoutController extends Controller
             if (!empty($feeRes['data']['total'])) {
                 $shippingFee = (float) $feeRes['data']['total'];
             }
+        } elseif ($request->filled('latitude') && $request->filled('longitude')) {
+            $lat = (float) $request->input('latitude');
+            $lng = (float) $request->input('longitude');
+            $distance = $this->calculateHaversineDistance(self::STORE_LAT, self::STORE_LNG, $lat, $lng);
+            if ($distance > 10) {
+                $shippingFee = ceil($distance - 10) * 10000;
+            }
+        } else {
+            $shippingFee = 30000; // Cước cơ bản mặc định nếu không có dữ liệu GPS / GHN
         }
 
         $totalAmount = $subtotal + $shippingFee;
 
         // Sinh mã đơn hàng ngẫu nhiên duy nhất
         $orderCode = 'VP-' . strtoupper(dechex(time())) . rand(100, 999);
-
-        $isPaid = ($request->payment_method === 'card');
-        $paymentStatus = match ($request->payment_method) {
-            'card'          => 'paid',
-            'momo'          => 'pending',
-            'bank_transfer' => 'pending',
-            default         => 'pending',
-        };
 
         // Chuẩn hóa địa chỉ đầy đủ
         $fullAddress = trim($request->shipping_address);
@@ -248,39 +286,44 @@ class CheckoutController extends Controller
                 'subtotal'         => $subtotal,
                 'total_amount'     => $totalAmount,
                 'payment_method'   => $request->payment_method,
-                'payment_status'   => $paymentStatus,
+                'payment_status'   => 'pending',
                 'shipping_status'  => 'pending',
                 'notes'            => $request->notes,
             ]);
 
+            // Trừ tồn kho an toàn bằng lockForUpdate() (Fix lỗi #8)
             foreach ($cart as $item) {
+                $qty = (int) $item['quantity'];
+
+                if (!empty($item['variant_id'])) {
+                    $variant = ProductVariant::where('id', $item['variant_id'])->lockForUpdate()->first();
+                    if (!$variant || $variant->stock < $qty) {
+                        $stockLeft = $variant ? $variant->stock : 0;
+                        throw new \Exception("Sản phẩm \"{$item['name']}\" ({$item['variant_label']}) chỉ còn {$stockLeft} máy trong kho.");
+                    }
+                    $variant->decrement('stock', $qty);
+                } elseif (!empty($item['id'])) {
+                    $product = Product::where('id', $item['id'])->lockForUpdate()->first();
+                    if (!$product || $product->stock < $qty) {
+                        $stockLeft = $product ? $product->stock : 0;
+                        throw new \Exception("Sản phẩm \"{$item['name']}\" chỉ còn {$stockLeft} máy trong kho.");
+                    }
+                    $product->decrement('stock', $qty);
+                }
+
                 OrderItem::create([
                     'order_id'      => $order->id,
                     'product_id'    => $item['id'] ?? null,
                     'variant_id'    => $item['variant_id'] ?? null,
                     'product_name'  => $item['name'],
                     'price'         => $item['price'],
-                    'quantity'      => $item['quantity'],
+                    'quantity'      => $qty,
                     'variant_label' => $item['variant_label'] ?? '',
                     'image'         => $item['image'] ?? null,
                 ]);
-
-                // Trừ tồn kho: Ưu tiên trừ từ biến thể cụ thể, fallback về product
-                $qty = (int) $item['quantity'];
-                if (!empty($item['variant_id'])) {
-                    $variant = ProductVariant::find($item['variant_id']);
-                    if ($variant && $variant->stock >= $qty) {
-                        $variant->decrement('stock', $qty);
-                    }
-                } elseif (!empty($item['id'])) {
-                    $product = Product::find($item['id']);
-                    if ($product && $product->stock >= $qty) {
-                        $product->decrement('stock', $qty);
-                    }
-                }
             }
 
-            // Lưu địa chỉ vào sổ địa chỉ nếu khách hàng tích chọn
+            // Lưu địa chỉ vào sổ địa chỉ nếu khách hàng tích chọn (Fix lỗi #5: Gom nhóm điều kiện orWhere)
             if ($request->has('save_address') && Auth::check()) {
                 UserAddress::updateOrCreate(
                     [
@@ -300,11 +343,12 @@ class CheckoutController extends Controller
                     ]
                 );
 
-                // Nếu đặt làm mặc định, bỏ default các địa chỉ khác
                 if ($request->has('set_default_address')) {
                     UserAddress::where('user_id', Auth::id())
-                        ->where('to_ward_code', '!=', $request->to_ward_code)
-                        ->orWhere('address_line', '!=', trim($request->shipping_address))
+                        ->where(function ($q) use ($request) {
+                            $q->where('to_ward_code', '!=', $request->to_ward_code)
+                              ->orWhere('address_line', '!=', trim($request->shipping_address));
+                        })
                         ->update(['is_default' => false]);
                 }
             }
@@ -319,7 +363,13 @@ class CheckoutController extends Controller
                 ]);
 
                 DB::commit();
-                session()->forget('cart');
+
+                // Chỉ xóa các item vừa đặt khỏi giỏ (Fix lỗi #9)
+                foreach (array_keys($cart) as $checkedKey) {
+                    unset($fullCart[$checkedKey]);
+                }
+                session()->put('cart', $fullCart);
+                session(['last_placed_order_id' => $order->id]);
 
                 return redirect()->route('orders.momo.start', $order->id);
             }
@@ -329,28 +379,33 @@ class CheckoutController extends Controller
                 'order_id' => $order->id,
                 'gateway'  => $request->payment_method,
                 'amount'   => $totalAmount,
-                'status'   => $paymentStatus,
+                'status'   => 'pending',
                 'message'  => match ($request->payment_method) {
                     'cod'           => 'Thanh toán tiền mặt khi nhận hàng (COD)',
                     'bank_transfer' => 'Chuyển khoản VietQR Napas 24/7',
-                    'card'          => 'Thanh toán thẻ quốc tế',
                     default         => 'Đặt hàng thành công',
                 },
             ]);
 
-            // Đối với COD / Thẻ: Tự động tạo vận đơn GHN Express ngay lập tức
+            // Đối với COD: Tự động tạo vận đơn GHN Express ngay lập tức (Chưa thanh toán: isPaid = false)
             if ($order->to_district_id && $order->to_ward_code) {
-                $ghnResult = $ghnOrderService->create($order, $isPaid);
+                $ghnResult = $ghnOrderService->create($order, false);
                 if (!empty($ghnResult['data']['order_code'])) {
                     $order->update([
                         'ghn_order_code'  => $ghnResult['data']['order_code'],
-                        'shipping_status' => 'ready_to_pick', // Đã đẩy sang GHN chuẩn bị lấy hàng
+                        'shipping_status' => 'ready_to_pick',
                     ]);
                 }
             }
 
             DB::commit();
-            session()->forget('cart');
+
+            // Chỉ xóa các item vừa đặt khỏi giỏ (Fix lỗi #9)
+            foreach (array_keys($cart) as $checkedKey) {
+                unset($fullCart[$checkedKey]);
+            }
+            session()->put('cart', $fullCart);
+            session(['last_placed_order_id' => $order->id]);
 
             return redirect()->route('checkout.success', $order->id)->with('success', 'Đặt hàng thành công! Đơn hàng đã được liên kết với hệ thống GHN Express.');
         } catch (\Exception $e) {
@@ -359,13 +414,21 @@ class CheckoutController extends Controller
         }
     }
 
-    // Trang hiển thị thông báo đặt hàng thành công & Mã VietQR
+    // Trang hiển thị thông báo đặt hàng thành công & Mã VietQR (Fix lỗi #4: Bảo vệ kiểm tra quyền truy cập)
     public function success($id)
     {
         $order = Order::with('items')->findOrFail($id);
 
+        // Kiểm tra quyền: Chỉ chủ đơn, Admin hoặc phiên đặt hàng vừa thực hiện mới được xem thông tin
+        $isOwner  = Auth::check() && $order->user_id === Auth::id();
+        $isAdmin  = Auth::check() && Auth::user()->isAdmin();
+        $isRecent = session('last_placed_order_id') == $id;
+
+        if (!$isOwner && !$isAdmin && !$isRecent) {
+            abort(403, 'Bạn không có quyền truy cập thông tin đơn hàng này.');
+        }
+
         // Sinh link VietQR chuẩn Napas 24/7
-        // Định dạng: https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-compact.png?amount=<AMOUNT>&addInfo=<INFO>&accountName=<NAME>
         $bankId = 'MB';
         $accountNo = '12317112005';
         $accountName = 'DOAN VIET ANH';

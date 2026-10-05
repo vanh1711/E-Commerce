@@ -234,9 +234,16 @@ class GHNService
             'shipping_status' => $newShippingStatus,
         ];
 
-        // Nếu GHN báo đã giao thành công và là đơn COD thì cập nhật đã thanh toán
-        if ($ghnStatus === 'delivered' && $order->payment_method === 'cod') {
-            $updateData['payment_status'] = 'paid';
+        // Hoàn kho nếu đơn bị chuyển sang trạng thái hủy từ GHN (Fix lỗi #12)
+        if ($order->shipping_status !== 'cancelled' && $newShippingStatus === 'cancelled') {
+            $order->loadMissing('items');
+            foreach ($order->items as $item) {
+                if ($item->variant_id) {
+                    \App\Models\ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
+                } elseif ($item->product_id) {
+                    \App\Models\Product::where('id', $item->product_id)->increment('stock', $item->quantity);
+                }
+            }
         }
 
         $order->update($updateData);

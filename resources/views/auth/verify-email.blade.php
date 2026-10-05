@@ -55,15 +55,15 @@
             </button>
         </form>
 
-        <!-- Hộp Trợ Giúp Thử Nghiệm Nhanh (Demo Mode) -->
-        @if(session('last_generated_otp'))
-            <div class="p-3 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/60 rounded-2xl flex items-center justify-between text-xs">
+        <!-- Hộp Trợ Giúp Thử Nghiệm Nhanh (Chỉ hiển thị ở môi trường phát triển Local) -->
+        @if(app()->isLocal() && session('last_generated_otp'))
+            <div class="p-3 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/60 rounded-2xl flex items-center justify-between text-xs">
                 <div class="text-left">
-                    <span class="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold block">Mã OTP thử nghiệm (Sandbox):</span>
-                    <span class="font-mono text-sm font-black text-blue-600 dark:text-blue-400 tracking-widest">{{ session('last_generated_otp') }}</span>
+                    <span class="text-amber-600 dark:text-amber-400 text-[10px] uppercase font-bold block">Chế độ Nhà phát triển (Local Sandbox):</span>
+                    <span class="font-mono text-sm font-black text-amber-700 dark:text-amber-300 tracking-widest">{{ session('last_generated_otp') }}</span>
                 </div>
                 <button type="button" onclick="document.getElementById('otpInput').value='{{ session('last_generated_otp') }}'" 
-                        class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold text-[10px] rounded-xl transition cursor-pointer">
                     Nhập Nhanh
                 </button>
             </div>

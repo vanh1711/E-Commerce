@@ -84,7 +84,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Xác thực mã OTP người dùng nhập
+     * Xác thực mã OTP người dùng nhập (Có đếm số lần thử chống Brute-force - Fix lỗi #7)
      */
     public function verifyOtp(Request $request, \App\Services\OtpVerificationService $otpService)
     {
@@ -99,12 +99,28 @@ class AuthController extends Controller
             return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để tiếp tục.');
         }
 
+        $throttleKey = 'otp_fail_count_' . $user->id;
+        $fails = (int) \Illuminate\Support\Facades\Cache::get($throttleKey, 0);
+
+        if ($fails >= 5) {
+            return back()->withErrors([
+                'otp' => 'Bạn đã nhập sai mã OTP quá 5 lần. Vui lòng bấm "Gửi Lại Mã Mới" để nhận mã OTP khác.',
+            ]);
+        }
+
         if ($otpService->verifyOtp($user, (string) $request->input('otp'))) {
+            \Illuminate\Support\Facades\Cache::forget($throttleKey);
             return redirect()->route('home')->with('success', 'Xác thực tài khoản thành công! Chào mừng bạn đến với PhoneStore.');
         }
 
+        $fails = \Illuminate\Support\Facades\Cache::increment($throttleKey);
+        if ($fails === 1) {
+            \Illuminate\Support\Facades\Cache::put($throttleKey, 1, now()->addMinutes(10));
+        }
+
+        $remaining = max(0, 5 - $fails);
         return back()->withErrors([
-            'otp' => 'Mã OTP không chính xác hoặc đã hết hiệu lực. Vui lòng kiểm tra lại hoặc bấm gửi lại mã mới.',
+            'otp' => "Mã OTP không chính xác hoặc đã hết hiệu lực. Bạn còn {$remaining} lần thử trước khi mã bị vô hiệu hóa.",
         ]);
     }
 
@@ -117,6 +133,9 @@ class AuthController extends Controller
         if (!$user) {
             return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để tiếp tục.');
         }
+
+        // Reset bộ đếm số lần nhập sai khi người dùng yêu cầu mã mới
+        \Illuminate\Support\Facades\Cache::forget('otp_fail_count_' . $user->id);
 
         $otpService->sendOtp($user);
 

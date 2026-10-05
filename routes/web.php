@@ -75,11 +75,15 @@ Route::middleware('auth')->group(function () {
         return view('auth.verify-email');
     })->name('verification.notice');
 
-    // Xác thực mã OTP người dùng gửi lên
-    Route::post('/email/verify-otp', [AuthController::class, 'verifyOtp'])->name('verification.verify-otp');
+    // Xác thực mã OTP người dùng gửi lên (Giới hạn tối đa 10 lần/phút - Chống brute-force Fix lỗi #7)
+    Route::post('/email/verify-otp', [AuthController::class, 'verifyOtp'])
+        ->middleware(['throttle:10,1'])
+        ->name('verification.verify-otp');
     
-    // Gửi lại mã OTP qua REST API Service
-    Route::post('/email/resend-otp', [AuthController::class, 'resendOtp'])->name('verification.resend-otp');
+    // Gửi lại mã OTP qua REST API Service (Giới hạn tối đa 3 lần/phút - Chống cạn kiệt quota email Fix lỗi #7)
+    Route::post('/email/resend-otp', [AuthController::class, 'resendOtp'])
+        ->middleware(['throttle:3,1'])
+        ->name('verification.resend-otp');
 
     // Xử lý link xác nhận trực tiếp (từ email)
     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
@@ -89,7 +93,10 @@ Route::middleware('auth')->group(function () {
 
     // Gửi lại email xác nhận (fallback nút cũ)
     Route::post('/email/verification-notification', [AuthController::class, 'resendOtp'])->middleware(['throttle:6,1'])->name('verification.send');
+});
 
+// 3.1. VERIFIED USER ROUTES (Bắt buộc ĐÃ ĐĂNG NHẬP VÀ ĐÃ XÁC THỰC EMAIL - Fix lỗi #6)
+Route::middleware(['auth', 'verified'])->group(function () {
     // ===== ROUTES GIỎ HÀNG =====
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');

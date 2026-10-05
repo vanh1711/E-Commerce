@@ -211,19 +211,30 @@ class AdminOrderController extends Controller
         $oldStatus = $order->shipping_status;
         $newStatus = $request->shipping_status;
 
-        // Nếu chuyển sang trạng thái HỦY đơn
+        // 1. Nếu chuyển sang trạng thái HỦY đơn: Hoàn lại kho cho biến thể và sản phẩm
         if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
-            // Hủy vận đơn bên GHN nếu có
             if (!empty($order->ghn_order_code)) {
                 try {
                     $ghn->cancelOrder([$order->ghn_order_code]);
                 } catch (\Exception $e) {}
             }
 
-            // Hoàn lại số lượng tồn kho
             foreach ($order->items as $item) {
-                if ($item->product_id) {
+                if ($item->variant_id) {
+                    ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
+                } elseif ($item->product_id) {
                     Product::where('id', $item->product_id)->increment('stock', $item->quantity);
+                }
+            }
+        }
+
+        // 2. Nếu chuyển từ HỦY về hoạt động: Trừ lại tồn kho tương ứng (Fix lỗi #11)
+        if ($oldStatus === 'cancelled' && $newStatus !== 'cancelled') {
+            foreach ($order->items as $item) {
+                if ($item->variant_id) {
+                    ProductVariant::where('id', $item->variant_id)->decrement('stock', $item->quantity);
+                } elseif ($item->product_id) {
+                    Product::where('id', $item->product_id)->decrement('stock', $item->quantity);
                 }
             }
         }
@@ -282,18 +293,30 @@ class AdminOrderController extends Controller
                 if ($newShippingStatus && $order->shipping_status !== $newShippingStatus) {
                     $oldStatus = $order->shipping_status;
 
-                    // Nếu chuyển sang trạng thái HỦY đơn
+                    // 1. Nếu chuyển sang trạng thái HỦY đơn: Hoàn lại kho cho biến thể và sản phẩm
                     if ($newShippingStatus === 'cancelled' && $oldStatus !== 'cancelled') {
-                        // Hủy GHN nếu có
                         if (!empty($order->ghn_order_code)) {
                             try {
                                 $ghn->cancelOrder([$order->ghn_order_code]);
                             } catch (\Exception $e) {}
                         }
-                        // Hoàn lại số lượng tồn kho
+
                         foreach ($order->items as $item) {
-                            if ($item->product_id) {
+                            if ($item->variant_id) {
+                                ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
+                            } elseif ($item->product_id) {
                                 Product::where('id', $item->product_id)->increment('stock', $item->quantity);
+                            }
+                        }
+                    }
+
+                    // 2. Nếu chuyển từ HỦY về hoạt động: Trừ lại tồn kho tương ứng
+                    if ($oldStatus === 'cancelled' && $newShippingStatus !== 'cancelled') {
+                        foreach ($order->items as $item) {
+                            if ($item->variant_id) {
+                                ProductVariant::where('id', $item->variant_id)->decrement('stock', $item->quantity);
+                            } elseif ($item->product_id) {
+                                Product::where('id', $item->product_id)->decrement('stock', $item->quantity);
                             }
                         }
                     }

@@ -102,13 +102,34 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Không thể thanh toán vì giỏ hàng trống.');
         }
 
-        // 1. Tính tổng tiền hàng và tổng khối lượng sản phẩm
-        $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-        $totalWeight = collect($cart)->sum(
-            fn($item) => (int) ($item['weight'] ?? 200) * (int) $item['quantity']
-        );
+        // 1. Tính tổng tiền hàng và tổng khối lượng sản phẩm (Đồng bộ giá từ DB)
+        $subtotal = 0;
+        $totalWeight = 0;
+        foreach ($cart as &$item) {
+            $price = (float) $item['price'];
+            $weight = (int) ($item['weight'] ?? 200);
 
-        // 2. Tính lại phí ship chuẩn xác từ GHN trên server
+            if (!empty($item['variant_id'])) {
+                $v = ProductVariant::find($item['variant_id']);
+                if ($v) {
+                    $price = (float) $v->price;
+                    $weight = (int) $v->weight;
+                }
+            } elseif (!empty($item['id'])) {
+                $p = Product::find($item['id']);
+                if ($p) {
+                    $price = (float) $p->price;
+                }
+            }
+
+            $item['price'] = $price;
+            $item['weight'] = $weight;
+            $subtotal += $price * (int) $item['quantity'];
+            $totalWeight += $weight * (int) $item['quantity'];
+        }
+        unset($item);
+
+        // 2. Tính lại phí ship chuẩn xác từ GHN trên server (Không tin client)
         $feeResponse = $ghn->calculateFee(array_merge([
             'from_district_id' => (int) config('services.ghn.from_district_id', 1450),
             'to_district_id'   => (int) $request->to_district_id,
@@ -117,7 +138,7 @@ class OrderController extends Controller
 
         $shippingFee = (isset($feeResponse['code']) && $feeResponse['code'] == 200)
             ? (int) $feeResponse['data']['total']
-            : (int) $request->input('shipping_fee', 0);
+            : 30000;
 
         // Tổng thanh toán = Tiền hàng + Phí ship
         $finalTotal = $subtotal + $shippingFee;
@@ -151,24 +172,35 @@ class OrderController extends Controller
             ]);
 
             foreach ($cart as $item) {
+                $qty = (int) $item['quantity'];
+
+                // Khóa dòng và kiểm tra tồn kho chống bán vượt (Fix lỗi #8)
+                if (!empty($item['variant_id'])) {
+                    $variant = ProductVariant::where('id', $item['variant_id'])->lockForUpdate()->first();
+                    if (!$variant || $variant->stock < $qty) {
+                        $stockLeft = $variant ? $variant->stock : 0;
+                        throw new \Exception("Sản phẩm \"{$item['name']}\" ({$item['variant_label']}) chỉ còn {$stockLeft} máy trong kho.");
+                    }
+                    $variant->decrement('stock', $qty);
+                } elseif (!empty($item['id'])) {
+                    $product = Product::where('id', $item['id'])->lockForUpdate()->first();
+                    if (!$product || $product->stock < $qty) {
+                        $stockLeft = $product ? $product->stock : 0;
+                        throw new \Exception("Sản phẩm \"{$item['name']}\" chỉ còn {$stockLeft} máy trong kho.");
+                    }
+                    $product->decrement('stock', $qty);
+                }
+
                 OrderItem::create([
                     'order_id'      => $order->id,
                     'product_id'    => $item['id'] ?? null,
                     'variant_id'    => $item['variant_id'] ?? null,
                     'product_name'  => $item['name'],
                     'price'         => $item['price'],
-                    'quantity'      => $item['quantity'],
+                    'quantity'      => $qty,
                     'variant_label' => $item['variant_label'] ?? '',
                     'image'         => $item['image'] ?? null,
                 ]);
-
-                // Trừ tồn kho
-                $qty = (int) $item['quantity'];
-                if (!empty($item['variant_id'])) {
-                    ProductVariant::where('id', $item['variant_id'])->decrement('stock', $qty);
-                } elseif (!empty($item['id'])) {
-                    Product::where('id', $item['id'])->decrement('stock', $qty);
-                }
             }
 
             return $order;
