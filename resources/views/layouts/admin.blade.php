@@ -206,7 +206,13 @@
                                     <span>Tin Nhắn Khách</span>
                                 </div>
                                 @php
-                                    $unreadChatCount = \App\Models\Message::where('receiver_id', Auth::id())->where('is_read', false)->count();
+                                    $adminIdsList = \App\Models\User::where('is_admin', 1)
+                                        ->orWhere('role', 'admin')
+                                        ->orWhere('email', 'admin@gmail.com')
+                                        ->orWhere('email', 'admin@example.com')
+                                        ->pluck('id')
+                                        ->toArray();
+                                    $unreadChatCount = \App\Models\Message::whereIn('receiver_id', !empty($adminIdsList) ? $adminIdsList : [Auth::id()])->where('is_read', false)->count();
                                 @endphp
                                 @if($unreadChatCount > 0)
                                     <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500 text-white font-black animate-pulse">
@@ -694,12 +700,20 @@
                     users.forEach(user => {
                         let activeClass = (currentUserId == user.id) ? 'active' : '';
                         let initial = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+                        let unreadBadge = (user.unread_count > 0) ? `<span class="px-1.5 py-0.5 rounded-full bg-rose-500 text-white font-black text-[9px] flex-shrink-0">${user.unread_count}</span>` : '';
+                        let snippet = user.latest_message ? escapeAdminHtml(user.latest_message.content) : '';
                         html += `
                             <div class="user-item ${activeClass}" onclick="selectUser(${user.id}, this)">
                                 <span class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-black flex-shrink-0">
                                     ${initial}
                                 </span>
-                                <span class="truncate flex-1">${escapeAdminHtml(user.name)}</span>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center justify-between gap-1">
+                                        <span class="truncate text-xs font-bold text-slate-800 dark:text-slate-200">${escapeAdminHtml(user.name)}</span>
+                                        ${unreadBadge}
+                                    </div>
+                                    ${snippet ? `<p class="truncate text-[10px] text-slate-400 font-normal mt-0.5">${snippet}</p>` : ''}
+                                </div>
                             </div>
                         `;
                     });
@@ -729,7 +743,8 @@
                 }
             })
             .then(res => res.json())
-            .then(messages => {
+            .then(data => {
+                const messages = Array.isArray(data) ? data : (data.messages || []);
                 let html = "";
                 if (!messages || messages.length === 0) {
                     html = `
@@ -741,8 +756,12 @@
                 } else {
                     const currentAdminId = "{{ Auth::id() }}";
                     messages.forEach(msg => {
-                        let isMe = (msg.sender_id == currentAdminId);
-                        let senderName = isMe ? "Bạn (Admin)" : (msg.sender ? msg.sender.name : 'Khách hàng');
+                        let isMe = (msg.sender_id == currentAdminId || msg.sender_id != currentUserId);
+                        let senderName = (msg.sender_id == currentAdminId) 
+                            ? "Bạn (Admin)" 
+                            : ((msg.sender_id != currentUserId) 
+                                ? ("BQT (" + (msg.sender ? msg.sender.name : 'Admin') + ")") 
+                                : (msg.sender ? msg.sender.name : 'Khách hàng'));
                         let color = isMe ? "#2563eb" : "currentColor";
                         let rowClass = isMe ? "admin-sent" : "user-sent";
                         let timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
@@ -753,7 +772,7 @@
                                     <span>${senderName}</span>
                                     <span class="text-slate-400 font-normal">${timeStr}</span>
                                 </div>
-                                <div class="text-slate-800 dark:text-slate-100 font-medium">
+                                <div class="text-slate-800 dark:text-slate-100 font-medium whitespace-pre-line">
                                     ${escapeAdminHtml(msg.content)}
                                 </div>
                             </div>

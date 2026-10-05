@@ -11,6 +11,21 @@ use Illuminate\Support\Facades\Auth;
 class ChatController extends Controller
 {
     /**
+     * Lấy danh sách ID của toàn bộ Quản trị viên (Admin)
+     */
+    protected function getAdminIds(): array
+    {
+        $adminIds = User::where('is_admin', 1)
+            ->orWhere('role', 'admin')
+            ->orWhere('email', 'admin@gmail.com')
+            ->orWhere('email', 'admin@example.com')
+            ->pluck('id')
+            ->toArray();
+
+        return !empty($adminIds) ? array_unique($adminIds) : [1];
+    }
+
+    /**
      * Gửi tin nhắn từ User tới Admin
      */
     public function send(Request $request)
@@ -23,12 +38,15 @@ class ChatController extends Controller
             return response()->json(['error' => 'Nội dung tin nhắn không được để trống'], 400);
         }
 
-        // 3. Xác định Admin nhận tin (ưu tiên is_admin = 1 hoặc email admin)
-        $admin = User::where('is_admin', 1)
-            ->orWhere('email', 'admin@gmail.com')
-            ->orWhere('email', 'admin@example.com')
+        // 3. Xác định Admin nhận tin
+        $adminIds = $this->getAdminIds();
+        // Lấy admin vừa trò chuyện gần nhất hoặc admin đầu tiên
+        $lastAdminMsg = Message::where('receiver_id', Auth::id())
+            ->whereIn('sender_id', $adminIds)
+            ->latest()
             ->first();
-        $receiverId = $admin ? $admin->id : 1;
+
+        $receiverId = $lastAdminMsg ? $lastAdminMsg->sender_id : reset($adminIds);
 
         try {
             // 4. Lưu tin nhắn vào Database
@@ -51,24 +69,24 @@ class ChatController extends Controller
     public function getMessages()
     {
         $userId = Auth::id();
+        $adminIds = $this->getAdminIds();
 
-        // Tìm Admin để lọc tin nhắn qua lại
-        $admin = User::where('is_admin', 1)
-            ->orWhere('email', 'admin@gmail.com')
-            ->orWhere('email', 'admin@example.com')
-            ->first();
-        $adminId = $admin ? $admin->id : 1;
+        // Đánh dấu các tin nhắn từ BQT Admin gửi tới User là đã đọc
+        Message::where('receiver_id', $userId)
+            ->whereIn('sender_id', $adminIds)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
 
-        // Lấy toàn bộ hội thoại giữa 2 người
+        // Lấy toàn bộ hội thoại giữa 2 bên (User và BQT Admin)
         $messages = Message::with(['sender', 'receiver'])
-            ->where(function ($q) use ($userId, $adminId) {
+            ->where(function ($q) use ($userId, $adminIds) {
                 // Tin nhắn User gửi cho Admin
                 $q->where('sender_id', $userId)
-                  ->where('receiver_id', $adminId);
+                  ->whereIn('receiver_id', $adminIds);
             })
-            ->orWhere(function ($q) use ($userId, $adminId) {
+            ->orWhere(function ($q) use ($userId, $adminIds) {
                 // Tin nhắn Admin phản hồi cho User
-                $q->where('sender_id', $adminId)
+                $q->whereIn('sender_id', $adminIds)
                   ->where('receiver_id', $userId);
             })
             ->orderBy('created_at', 'asc')

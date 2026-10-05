@@ -343,8 +343,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let html = '';
         messages.forEach(msg => {
-            const isMe = (msg.sender_id == currentAdminId);
+            const isMe = (msg.sender_id == currentAdminId || msg.sender_id != currentSelectedUserId);
             const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            const adminSenderLabel = (msg.sender_id == currentAdminId) ? '' : ((msg.sender ? msg.sender.name : 'Admin') + ' · ');
 
             if (isMe) {
                 // Bong bóng tin nhắn Admin gửi (Bên Phải)
@@ -353,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="max-w-[75%] sm:max-w-[65%] px-4 py-2.5 rounded-2xl rounded-br-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium shadow-md shadow-blue-600/15">
                             <p class="leading-relaxed whitespace-pre-line">${escapeHtml(msg.content)}</p>
                         </div>
-                        <span class="text-[10px] text-slate-400 font-mono pr-1">${timeStr} · Đã gửi</span>
+                        <span class="text-[10px] text-slate-400 font-mono pr-1">${adminSenderLabel}${timeStr} · Đã gửi</span>
                     </div>
                 `;
             } else {

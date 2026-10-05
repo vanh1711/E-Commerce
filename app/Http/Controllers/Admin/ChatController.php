@@ -11,22 +11,43 @@ use Illuminate\Support\Facades\Auth;
 class ChatController extends Controller
 {
     /**
+     * Lấy danh sách ID của toàn bộ Quản trị viên (Admin)
+     */
+    protected function getAdminIds(): array
+    {
+        $adminIds = User::where('is_admin', 1)
+            ->orWhere('role', 'admin')
+            ->orWhere('email', 'admin@gmail.com')
+            ->orWhere('email', 'admin@example.com')
+            ->pluck('id')
+            ->toArray();
+
+        $currentId = Auth::id();
+        if ($currentId && !in_array($currentId, $adminIds)) {
+            $adminIds[] = $currentId;
+        }
+
+        return !empty($adminIds) ? array_unique($adminIds) : [1];
+    }
+
+    /**
      * Hiển thị trang Quản lý Chat riêng biệt cho Admin
      */
     public function index(Request $request)
     {
+        $adminIds = $this->getAdminIds();
         $selectedUserId = $request->query('user_id');
         $initialUser = null;
         if ($selectedUserId) {
-            $initialUser = User::where('id', '!=', Auth::id())->find($selectedUserId);
+            $initialUser = User::whereNotIn('id', $adminIds)->find($selectedUserId);
         }
 
-        $totalCustomers = User::where('id', '!=', Auth::id())
+        $totalCustomers = User::whereNotIn('id', $adminIds)
             ->where(function ($q) {
                 $q->where('is_admin', false)->orWhereNull('is_admin');
             })->count();
 
-        $unreadCount = Message::where('receiver_id', Auth::id())
+        $unreadCount = Message::whereIn('receiver_id', $adminIds)
             ->where('is_read', false)
             ->count();
 
@@ -34,15 +55,15 @@ class ChatController extends Controller
     }
 
     /**
-     * Lấy danh sách TẤT CẢ khách hàng (kể cả chưa từng nhắn) kèm tin nhắn gần nhất và sắp xếp
+     * Lấy danh sách TẤT CẢ khách hàng kèm tin nhắn gần nhất và sắp xếp
      */
     public function getUsers(Request $request)
     {
-        $adminId = Auth::id();
+        $adminIds = $this->getAdminIds();
         $search = trim($request->input('q', $request->input('search', '')));
 
         // Query tất cả user không phải admin
-        $query = User::where('id', '!=', $adminId)
+        $query = User::whereNotIn('id', $adminIds)
             ->where(function ($q) {
                 $q->where('is_admin', false)->orWhereNull('is_admin');
             });
@@ -57,11 +78,11 @@ class ChatController extends Controller
         $users = $query->select('id', 'name', 'email', 'created_at')->get();
         $userIds = $users->pluck('id')->toArray();
 
-        // Lấy toàn bộ tin nhắn liên quan giữa admin và danh sách user
-        $messages = Message::where(function ($q) use ($adminId, $userIds) {
-            $q->where('receiver_id', $adminId)->whereIn('sender_id', $userIds);
-        })->orWhere(function ($q) use ($adminId, $userIds) {
-            $q->where('sender_id', $adminId)->whereIn('receiver_id', $userIds);
+        // Lấy toàn bộ tin nhắn liên quan giữa BQT Admin và danh sách user
+        $messages = Message::where(function ($q) use ($adminIds, $userIds) {
+            $q->whereIn('receiver_id', $adminIds)->whereIn('sender_id', $userIds);
+        })->orWhere(function ($q) use ($adminIds, $userIds) {
+            $q->whereIn('sender_id', $adminIds)->whereIn('receiver_id', $userIds);
         })
         ->orderBy('created_at', 'desc')
         ->get();
@@ -70,16 +91,18 @@ class ChatController extends Controller
         $unreadMap = [];
 
         foreach ($messages as $msg) {
-            $otherId = ($msg->sender_id == $adminId) ? $msg->receiver_id : $msg->sender_id;
+            $isMsgFromAdmin = in_array($msg->sender_id, $adminIds);
+            $otherId = $isMsgFromAdmin ? $msg->receiver_id : $msg->sender_id;
+
             if (!isset($latestMsgMap[$otherId])) {
                 $latestMsgMap[$otherId] = [
                     'content'    => $msg->content,
                     'created_at' => $msg->created_at ? $msg->created_at->toISOString() : null,
                     'time_human' => $msg->created_at ? $msg->created_at->diffForHumans() : '',
-                    'is_me'      => ($msg->sender_id == $adminId),
+                    'is_me'      => $isMsgFromAdmin,
                 ];
             }
-            if ($msg->receiver_id == $adminId && !$msg->is_read) {
+            if (in_array($msg->receiver_id, $adminIds) && !$msg->is_read) {
                 $unreadMap[$otherId] = ($unreadMap[$otherId] ?? 0) + 1;
             }
         }
@@ -112,20 +135,20 @@ class ChatController extends Controller
      */
     public function getMessages($userId)
     {
-        $adminId = Auth::id();
+        $adminIds = $this->getAdminIds();
 
-        // Đánh dấu các tin nhắn từ khách gửi đến admin là đã đọc
+        // Đánh dấu các tin nhắn từ khách gửi đến BQT admin là đã đọc
         Message::where('sender_id', $userId)
-            ->where('receiver_id', $adminId)
+            ->whereIn('receiver_id', $adminIds)
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
         $messages = Message::with('sender')
-            ->where(function ($q) use ($userId, $adminId) {
-                $q->where('sender_id', $userId)->where('receiver_id', $adminId);
+            ->where(function ($q) use ($userId, $adminIds) {
+                $q->where('sender_id', $userId)->whereIn('receiver_id', $adminIds);
             })
-            ->orWhere(function ($q) use ($userId, $adminId) {
-                $q->where('sender_id', $adminId)->where('receiver_id', $userId);
+            ->orWhere(function ($q) use ($userId, $adminIds) {
+                $q->whereIn('sender_id', $adminIds)->where('receiver_id', $userId);
             })
             ->orderBy('created_at', 'asc')
             ->get();
