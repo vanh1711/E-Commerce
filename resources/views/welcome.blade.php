@@ -292,7 +292,7 @@
                             <div class="md:col-span-8">
                                 <div class="flex justify-between items-center mb-3">
                                     <h4 class="text-[11px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">SẢN PHẨM LIÊN QUAN</h4>
-                                    <a href="{{ route('products.index') }}" id="viewAllSearchLink" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                                    <a href="#all-products" id="viewAllSearchLink" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
                                         Xem tất cả
                                     </a>
                                 </div>
@@ -316,7 +316,6 @@
                 </div>
 
                 <nav class="hidden lg:flex items-center space-x-5 text-xs font-bold tracking-wide flex-shrink-0">
-                    <a href="{{ route('products.index') }}" class="text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Sản Phẩm</a>
                     <a href="#all-products" class="text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition">Điện Thoại</a>
                 </nav>
             </div>
@@ -1053,7 +1052,7 @@
             const viewAllLink = document.getElementById('viewAllSearchLink');
 
             if (headerLabel) headerLabel.innerText = "Gợi ý dòng máy thịnh hành";
-            if (viewAllLink) viewAllLink.href = "{{ route('products.index') }}";
+            if (viewAllLink) viewAllLink.href = "#all-products";
             if (emptyState) emptyState.classList.add('hidden');
             if (cardsGrid) {
                 cardsGrid.classList.remove('hidden');

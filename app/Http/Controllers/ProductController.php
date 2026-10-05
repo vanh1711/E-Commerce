@@ -11,6 +11,13 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        // Kiểm tra quyền: Chỉ Quản trị viên mới được phép truy cập trang quản lý kho & sản phẩm
+        $user = auth()->user();
+        $isAdmin = $user && ($user->is_admin == 1 || $user->role === 'admin' || $user->email === 'admin@gmail.com' || $user->email === 'admin@example.com');
+        if (!$isAdmin) {
+            return redirect()->route('home')->with('error', 'Bạn không có quyền truy cập trang quản lý sản phẩm của Quản trị viên.');
+        }
+
         $categories = Category::withCount('products')->get();
 
         $query = Product::with('category', 'variants');
@@ -117,7 +124,7 @@ class ProductController extends Controller
             'products' => $products,
             'suggestions' => $suggestions,
             'total' => count($products),
-            'view_all_url' => route('products.index', ['search' => $keyword])
+            'view_all_url' => url('/?search=' . urlencode($keyword))
         ]);
     }
 

@@ -40,7 +40,12 @@ Route::get('/', function (Request $request) {
 })->name('home');
 
 
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products', function () {
+    if (Auth::check() && (Auth::user()->is_admin == 1 || Auth::user()->role === 'admin' || Auth::user()->email === 'admin@gmail.com' || Auth::user()->email === 'admin@example.com')) {
+        return redirect()->route('products.index');
+    }
+    return redirect()->route('home');
+});
 Route::get('/compare', [ProductController::class, 'compare'])->name('products.compare');
 Route::get('/api/products/search', [ProductController::class, 'searchApi'])->name('api.products.search');
 Route::get('/api/products/compare', [ProductController::class, 'compareApi'])->name('api.products.compare');
@@ -144,8 +149,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     
     // CRUD Sản phẩm & Danh mục (categories.*, products.*)
     Route::resource('categories', CategoryController::class);
-    Route::resource('products', ProductController::class)->except(['index', 'show']);
-    Route::get('products', [ProductController::class, 'index']);
+    Route::resource('products', ProductController::class)->except(['show']);
 
     // Quản lý người dùng (Lab 08)
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->names([

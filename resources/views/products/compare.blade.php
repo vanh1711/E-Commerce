@@ -25,7 +25,7 @@
                 <span class="ml-3 text-xs font-black text-slate-700 dark:text-slate-300 select-none">Chỉ hiện điểm khác biệt</span>
             </label>
 
-            <a href="{{ route('products.index') }}" class="px-5 py-2.5 bg-slate-900 dark:bg-blue-600 hover:bg-blue-600 text-white text-xs font-black rounded-2xl transition shadow-md">
+            <a href="{{ route('home') }}#all-products" class="px-5 py-2.5 bg-slate-900 dark:bg-blue-600 hover:bg-blue-600 text-white text-xs font-black rounded-2xl transition shadow-md">
                 + Thêm Máy Khác
             </a>
         </div>
@@ -220,7 +220,7 @@
         const currentIds = {!! json_encode($comparedProducts->pluck('id')) !!};
         const newIds = currentIds.filter(id => id !== removeId);
         if (newIds.length === 0) {
-            window.location.href = "{{ route('products.index') }}";
+            window.location.href = "{{ route('home') }}#all-products";
         } else {
             window.location.href = "{{ route('products.compare') }}?ids=" + newIds.join(',');
         }

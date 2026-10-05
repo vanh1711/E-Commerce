@@ -7,7 +7,7 @@
     <nav class="flex text-xs font-bold text-slate-400 gap-2 items-center">
         <a href="{{ route('home') }}" class="hover:text-blue-600">Trang Chủ</a>
         <span>/</span>
-        <a href="{{ route('products.index') }}" class="hover:text-blue-600">Điện Thoại</a>
+        <a href="{{ route('home') }}#all-products" class="hover:text-blue-600">Điện Thoại</a>
         <span>/</span>
         <span class="text-blue-600 font-extrabold truncate max-w-xs">{{ $product->name }}</span>
     </nav>
