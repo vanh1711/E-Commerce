@@ -11,7 +11,7 @@
                 ✨
             </div>
             <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Đăng Ký Thành Viên</h2>
-            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Trở thành thành viên VanhPhone nhận ngập tràn ưu đãi</p>
+            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Trở thành thành viên PhoneStore nhận ngập tràn ưu đãi</p>
         </div>
 
         <!-- Báo Lỗi -->

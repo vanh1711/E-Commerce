@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>VanhPhone - Trải Nghiệm Công Nghệ Flagship Đỉnh Cao</title>
+    <title>PhoneStore - Trải Nghiệm Công Nghệ Flagship Đỉnh Cao</title>
     
-    <!-- Favicon VanhPhone -->
+    <!-- Favicon PhoneStore -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=2">
     <link rel="alternate icon" type="image/x-icon" href="{{ asset('favicon.svg') }}?v=2">
     <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}?v=2">
@@ -181,9 +181,9 @@
             <!-- Brand Logo -->
             <a href="{{ route('home') }}" class="flex items-center gap-2.5 group flex-shrink-0">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white text-base font-black shadow-md shadow-blue-500/30 group-hover:scale-105 transition-transform">
-                    V
+                    P
                 </div>
-                <span class="text-xl font-black tracking-tighter text-slate-950 dark:text-white uppercase">VANH<span class="text-blue-600 dark:text-blue-400">PHONE</span></span>
+                <span class="text-xl font-black tracking-tighter text-slate-950 dark:text-white uppercase">PHONE<span class="text-blue-600 dark:text-blue-400">STORE</span></span>
             </a>
 
             <!-- Category Menu (FPT Shop Style) & Search Bar & Quick Links -->
@@ -857,8 +857,8 @@
     <!-- 6. MINIMALIST FOOTER -->
     <footer class="bg-black text-gray-400 py-12 border-t border-gray-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span class="text-sm font-extrabold tracking-tighter text-white uppercase">VANH<span class="text-blue-500">PHONE</span></span>
-            <p class="text-xs text-gray-500">© 2026 VanhPhone Inc. All rights reserved. Thiết kế trải nghiệm phong cách Flagship.</p>
+            <span class="text-sm font-extrabold tracking-tighter text-white uppercase">PHONE<span class="text-blue-500">STORE</span></span>
+            <p class="text-xs text-gray-500">© 2026 PhoneStore Inc. All rights reserved. Thiết kế trải nghiệm phong cách Flagship.</p>
             <div class="flex gap-6 text-xs font-medium">
                 <a href="#" class="hover:text-white transition">Chính sách bảo hành</a>
                 <a href="#" class="hover:text-white transition">Giao hàng</a>

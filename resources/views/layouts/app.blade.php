@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'VanhPhone') }} - Trải Nghiệm Công Nghệ Flagship</title>
+    <title>{{ config('app.name', 'PhoneStore') }} - Trải Nghiệm Công Nghệ Flagship</title>
     
-    <!-- Favicon VanhPhone -->
+    <!-- Favicon PhoneStore -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=2">
     <link rel="alternate icon" type="image/x-icon" href="{{ asset('favicon.svg') }}?v=2">
     <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}?v=2">
@@ -148,10 +148,10 @@
             <!-- Brand Logo -->
             <a href="{{ route('home') }}" class="flex items-center gap-2.5 group flex-shrink-0">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center font-black text-base shadow-md shadow-blue-500/25 group-hover:scale-105 transition-transform duration-300">
-                    V
+                    P
                 </div>
                 <span class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white uppercase">
-                    VANH<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">PHONE</span>
+                    PHONE<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">STORE</span>
                 </span>
             </a>
 
@@ -383,7 +383,7 @@
                 </div>
             </div>
             <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                <p>© 2026 VanhPhone Co. All rights reserved. Designed for Excellence.</p>
+                <p>© 2026 PhoneStore Co. All rights reserved. Designed for Excellence.</p>
                 <div class="flex gap-4">
                     <a href="{{ route('home') }}" class="hover:text-slate-300 transition">Trang Chủ</a>
                     <a href="{{ route('products.index') }}" class="hover:text-slate-300 transition">Sản Phẩm</a>

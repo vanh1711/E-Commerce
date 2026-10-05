@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Dashboard') - Trung Tâm Quản Trị Hệ Thống</title>
     
-    <!-- Favicon VanhPhone Admin -->
+    <!-- Favicon PhoneStore Admin -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=2">
     <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}?v=2">
 
@@ -114,13 +114,13 @@
                 <div class="h-20 px-6 flex items-center justify-between border-b border-slate-800/80">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
                         <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center font-black text-lg shadow-lg shadow-blue-500/30 group-hover:scale-105 transition-transform duration-300">
-                            ⚡
+                            📱
                         </div>
                         <div>
                             <span class="text-base font-black tracking-tight text-white block uppercase leading-none">
-                                VANH<span class="text-blue-400">ADMIN</span>
+                                PHONE<span class="text-blue-400">STORE</span>
                             </span>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-1">Control Center</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-1">Admin Portal</span>
                         </div>
                     </a>
 

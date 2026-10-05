@@ -11,7 +11,7 @@
                 📱
             </div>
             <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Đăng Nhập</h2>
-            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Chào mừng bạn quay trở lại với VanhPhone</p>
+            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Chào mừng bạn quay trở lại với PhoneStore</p>
         </div>
 
         <!-- Báo Lỗi -->
