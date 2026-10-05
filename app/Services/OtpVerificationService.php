@@ -91,8 +91,9 @@ class OtpVerificationService
         // KÊNH 1: Brevo (Sendinblue) REST API (HTTPS Endpoint)
         if (!empty($brevoKey)) {
             try {
-                $response = Http::baseUrl('https://api.brevo.com/v3')
-                    ->timeout(5)
+                $response = Http::withoutVerifying()
+                    ->baseUrl('https://api.brevo.com/v3')
+                    ->timeout(6)
                     ->withHeaders([
                         'api-key'      => $brevoKey,
                         'Content-Type' => 'application/json',
@@ -108,6 +109,8 @@ class OtpVerificationService
                 if ($response->successful()) {
                     Log::info("OTP sent successfully via Brevo REST API to {$user->email}");
                     return ['channel' => 'brevo_api', 'message' => 'Mã OTP đã được gửi về email qua Brevo API.'];
+                } else {
+                    Log::warning("Brevo API responded with error: " . $response->body());
                 }
             } catch (\Exception $e) {
                 Log::warning("Brevo API error: " . $e->getMessage());
@@ -117,8 +120,9 @@ class OtpVerificationService
         // KÊNH 2: Resend REST API (HTTPS Endpoint)
         if (!empty($resendKey)) {
             try {
-                $response = Http::baseUrl('https://api.resend.com')
-                    ->timeout(5)
+                $response = Http::withoutVerifying()
+                    ->baseUrl('https://api.resend.com')
+                    ->timeout(6)
                     ->withHeaders([
                         'Authorization' => 'Bearer ' . $resendKey,
                         'Content-Type'  => 'application/json',
