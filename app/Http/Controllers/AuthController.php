@@ -60,7 +60,7 @@ class AuthController extends Controller
     }
 
     // 4. Xử lý đăng ký
-    public function register(Request $request)
+    public function register(Request $request, \App\Services\OtpVerificationService $otpService)
     {
         $request->validate([
             'name'     => 'required|string|max:255',
@@ -77,14 +77,54 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        // Gửi email xác thực
-        $user->sendEmailVerificationNotification();
+        // Gửi mã OTP xác thực qua API Service chuyên dụng
+        $otpService->sendOtp($user);
 
-        return redirect()->route('verification.notice')->with('success', 'Vui lòng kiểm tra email để xác thực tài khoản.');
+        return redirect()->route('verification.notice')->with('success', 'Đăng ký thành công! Vui lòng nhập mã OTP xác thực để kích hoạt tài khoản.');
     }
 
-    // 5. Xử lý đăng xuất
-     public function logout(Request $request)
+    /**
+     * Xác thực mã OTP người dùng nhập
+     */
+    public function verifyOtp(Request $request, \App\Services\OtpVerificationService $otpService)
+    {
+        $request->validate([
+            'otp' => 'required|string|min:4|max:10',
+        ], [
+            'otp.required' => 'Vui lòng nhập mã OTP xác thực.',
+        ]);
+
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để tiếp tục.');
+        }
+
+        if ($otpService->verifyOtp($user, (string) $request->input('otp'))) {
+            return redirect()->route('home')->with('success', 'Xác thực tài khoản thành công! Chào mừng bạn đến với PhoneStore.');
+        }
+
+        return back()->withErrors([
+            'otp' => 'Mã OTP không chính xác hoặc đã hết hiệu lực. Vui lòng kiểm tra lại hoặc bấm gửi lại mã mới.',
+        ]);
+    }
+
+    /**
+     * Gửi lại mã OTP xác thực mới
+     */
+    public function resendOtp(Request $request, \App\Services\OtpVerificationService $otpService)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để tiếp tục.');
+        }
+
+        $otpService->sendOtp($user);
+
+        return back()->with('success', 'Mã OTP xác thực mới đã được gửi thành công!');
+    }
+
+    // 5. Xử lý đăng xuất (Hỗ trợ cả GET và POST an toàn)
+    public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();

@@ -57,26 +57,33 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
+// Hỗ trợ cả GET và POST để không bao giờ bị lỗi 405 Method Not Allowed khi truy cập /logout trực tiếp
+Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
+
 // 3. AUTH ROUTES (Bắt buộc ĐÃ đăng nhập)
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    // Hiển thị thông báo xác thực email
+    // Hiển thị form nhập mã OTP xác thực email
     Route::get('/email/verify', function () {
+        if (Auth::user() && Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('home')->with('info', 'Tài khoản của bạn đã được kích hoạt trước đó.');
+        }
         return view('auth.verify-email');
     })->name('verification.notice');
 
-    // Xử lý link xác nhận (từ email)
+    // Xác thực mã OTP người dùng gửi lên
+    Route::post('/email/verify-otp', [AuthController::class, 'verifyOtp'])->name('verification.verify-otp');
+    
+    // Gửi lại mã OTP qua REST API Service
+    Route::post('/email/resend-otp', [AuthController::class, 'resendOtp'])->name('verification.resend-otp');
+
+    // Xử lý link xác nhận trực tiếp (từ email)
     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
         $request->fulfill();
-        return redirect()->route('home'); // Redirect về trang chủ
+        return redirect()->route('home')->with('success', 'Xác thực tài khoản thành công!');
     })->middleware(['signed'])->name('verification.verify');
 
-    // Gửi lại email xác nhận
-    Route::post('/email/verification-notification', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
-        return back()->with('message', 'Verification link sent!');
-    })->middleware(['throttle:6,1'])->name('verification.send');
+    // Gửi lại email xác nhận (fallback nút cũ)
+    Route::post('/email/verification-notification', [AuthController::class, 'resendOtp'])->middleware(['throttle:6,1'])->name('verification.send');
 
     // ===== ROUTES GIỎ HÀNG =====
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');

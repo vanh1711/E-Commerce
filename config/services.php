@@ -55,4 +55,12 @@ return [
         'ipn_url'      => env('MOMO_IPN_URL'),
     ],
 
+    'otp' => [
+        'brevo_key'   => env('BREVO_API_KEY'),
+        'resend_key'  => env('RESEND_API_KEY'),
+        'from_email'  => env('MAIL_FROM_ADDRESS', 'security@phonestore.vn'),
+        'from_name'   => env('MAIL_FROM_NAME', 'PhoneStore Security'),
+        'expiry_mins' => 10,
+    ],
+
 ];
