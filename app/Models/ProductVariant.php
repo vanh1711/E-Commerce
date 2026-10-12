@@ -73,10 +73,13 @@ class ProductVariant extends Model
     public function getImageUrlAttribute(): string
     {
         if (empty($this->image)) {
-            return $this->product?->image_url ?? 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=600&q=80';
+            return $this->product?->image_url ?? asset('images/products/iphone-16-pro-max.jpg');
         }
         if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
             return $this->image;
+        }
+        if (str_starts_with($this->image, 'images/')) {
+            return asset($this->image);
         }
         return asset('storage/' . $this->image);
     }
