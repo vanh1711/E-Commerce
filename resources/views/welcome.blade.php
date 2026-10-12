@@ -647,7 +647,7 @@
                      data-id="{{ $product->id }}"
                      data-name="{{ $product->name }}"
                      data-price="{{ number_format($product->price) }} đ"
-                     data-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80' }}"
+                     data-image="{{ $product->image_url }}"
                      data-brand="{{ $product->brand ?? 'PhoneStore' }}">
                     
                     <!-- Badges Top Floating -->
@@ -668,7 +668,7 @@
                     
                     <div class="absolute top-3.5 right-3.5 z-10 flex items-center gap-1.5">
                         <!-- Nút Thêm vào So Sánh Specs Nhanh -->
-                        <button type="button" onclick="toggleCompareProduct({{ $product->id }}, '{{ addslashes($product->name) }}', '{{ $product->image ? asset('storage/' . $product->image) : 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80' }}', '{{ number_format($product->price) }} đ')" 
+                        <button type="button" onclick="toggleCompareProduct({{ $product->id }}, '{{ addslashes($product->name) }}', '{{ $product->image_url }}', '{{ number_format($product->price) }} đ')" 
                                 class="compare-btn-{{ $product->id }} w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800 backdrop-blur-md border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-blue-600 hover:scale-110 shadow-sm transition cursor-pointer" 
                                 title="Thêm vào bảng so sánh">
                             ⚖️
@@ -681,11 +681,7 @@
                     <!-- Product Image Container -->
                     <a href="{{ route('products.show', $product->id) }}" class="block relative pt-7 pb-3 h-[210px] flex justify-center items-center">
                         <div class="w-full h-full rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-4 flex items-center justify-center border border-slate-100 dark:border-slate-800 shadow-inner group-hover:bg-white dark:group-hover:bg-slate-800 transition-colors duration-300">
-                            @if($product->image)
-                                <img src="{{ asset('storage/' . $product->image) }}" class="max-h-[160px] max-w-full object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md" alt="{{ $product->name }}">
-                            @else
-                                <img src="https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80" class="max-h-[160px] max-w-full object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md" alt="{{ $product->name }}">
-                            @endif
+                            <img src="{{ $product->image_url }}" class="max-h-[160px] max-w-full object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md" alt="{{ $product->name }}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80'">
                         </div>
                     </a>
 

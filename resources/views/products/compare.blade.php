@@ -53,9 +53,10 @@
                 </button>
 
                 <div class="h-32 sm:h-40 flex items-center justify-center p-2">
-                    <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80' }}" 
+                    <img src="{{ $product->image_url }}" 
                          alt="{{ $product->name }}" 
-                         class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-md">
+                         class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-md"
+                         onerror="this.src='https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80'">
                 </div>
 
                 <div>

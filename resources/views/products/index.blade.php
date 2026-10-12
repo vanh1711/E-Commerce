@@ -120,8 +120,8 @@
                             <!-- Ảnh sản phẩm -->
                             <td class="py-4">
                                 <div class="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl p-1.5 border border-slate-100 dark:border-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                    <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=150&q=80' }}" 
-                                         class="max-h-full object-contain hover:scale-110 transition duration-300" alt="">
+                                    <img src="{{ $product->image_url }}" 
+                                         class="max-h-full object-contain hover:scale-110 transition duration-300" alt="{{ $product->name }}" onerror="this.src='https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=150&q=80'">
                                 </div>
                             </td>
 

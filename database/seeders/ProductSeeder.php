@@ -27,7 +27,7 @@ class ProductSeeder extends Seeder
                 'price'       => 34990000,
                 'stock'       => 45,
                 'weight'      => 227,
-                'image'       => 'products/auRKeCtUlfb5aqmdSyAvcKvPwajwzX12tHTokbay.png',
+                'image'       => 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['camera', 'gaming', 'battery'],
                 'specs'       => [
                     'ram'     => '8GB',
@@ -84,7 +84,7 @@ class ProductSeeder extends Seeder
                 'price'       => 24490000,
                 'stock'       => 30,
                 'weight'      => 187,
-                'image'       => 'products/FzzphJYV6EOST9cmLY24oM5cyDWPZbMtCa9vVUvS.png',
+                'image'       => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['compact', 'camera', 'gaming'],
                 'specs'       => [
                     'ram'     => '8GB',
@@ -130,7 +130,7 @@ class ProductSeeder extends Seeder
                 'price'       => 19290000,
                 'stock'       => 35,
                 'weight'      => 171,
-                'image'       => 'products/jQKNzNZvBRDihhJXFY0sx1Mb7aX1O8jss6ncjB5h.png',
+                'image'       => 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['compact', 'camera'],
                 'specs'       => [
                     'ram'     => '6GB',
@@ -176,7 +176,7 @@ class ProductSeeder extends Seeder
                 'price'       => 13490000,
                 'stock'       => 40,
                 'weight'      => 174,
-                'image'       => 'products/Prnv43s3GhJmaABtGyMFAMuzQgoIdLXB4QM6CDu5.png',
+                'image'       => 'https://images.unsplash.com/photo-1512054502232-10a0a035d672?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['compact', 'battery'],
                 'specs'       => [
                     'ram'     => '4GB',
@@ -222,7 +222,7 @@ class ProductSeeder extends Seeder
                 'price'       => 28990000,
                 'stock'       => 35,
                 'weight'      => 232,
-                'image'       => 'products/Vp2HKGK9wGFSt6gleBzzjIE2eIYzvFOO9NY8kKJl.jpg',
+                'image'       => 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['gaming', 'camera', 'battery'],
                 'specs'       => [
                     'ram'     => '12GB',
@@ -268,7 +268,7 @@ class ProductSeeder extends Seeder
                 'price'       => 40990000,
                 'stock'       => 20,
                 'weight'      => 239,
-                'image'       => 'products/rx0LJZHe0RIPPE9VtXz7oXOiTOmQcLEPaf6Py9Bc.jpg',
+                'image'       => 'https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['gaming', 'battery'],
                 'specs'       => [
                     'ram'     => '12GB',
@@ -314,7 +314,7 @@ class ProductSeeder extends Seeder
                 'price'       => 11990000,
                 'stock'       => 50,
                 'weight'      => 209,
-                'image'       => 'products/TXoh04mR2SQBSepQjl4toSauyIL7TmE0OqKnoZSy.jpg',
+                'image'       => 'https://images.unsplash.com/photo-1575695342320-d2d2d2f9b73f?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['camera', 'gaming'],
                 'specs'       => [
                     'ram'     => '8GB',
@@ -360,7 +360,7 @@ class ProductSeeder extends Seeder
                 'price'       => 28490000,
                 'stock'       => 25,
                 'weight'      => 220,
-                'image'       => 'products/qgPD5u0rbZTe5k0CPhVWK9x8FQbXlxOZZyvD7Yo6.png',
+                'image'       => 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['camera', 'gaming', 'battery'],
                 'specs'       => [
                     'ram'     => '16GB',
@@ -406,7 +406,7 @@ class ProductSeeder extends Seeder
                 'price'       => 8990000,
                 'stock'       => 60,
                 'weight'      => 204,
-                'image'       => 'products/nZqdcUABaEKzVokSQhfkfEQY3URmRFC5Gqkl4UAv.jpg',
+                'image'       => 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['camera', 'battery'],
                 'specs'       => [
                     'ram'     => '8GB',
@@ -452,7 +452,7 @@ class ProductSeeder extends Seeder
                 'price'       => 8490000,
                 'stock'       => 40,
                 'weight'      => 209,
-                'image'       => 'products/Vsg7rg51Kdh3XLABeW3MgZu80NmhRDd0y2qt7OMd.png',
+                'image'       => 'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['gaming', 'battery'],
                 'specs'       => [
                     'ram'     => '12GB',
@@ -498,7 +498,7 @@ class ProductSeeder extends Seeder
                 'price'       => 4190000,
                 'stock'       => 80,
                 'weight'      => 188,
-                'image'       => 'products/pUpJ3uCiwF97lzm5HQKxgaeoLrLT3CxlADtWFE4G.jpg',
+                'image'       => 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['battery', 'compact'],
                 'specs'       => [
                     'ram'     => '6GB',
@@ -544,7 +544,7 @@ class ProductSeeder extends Seeder
                 'price'       => 26500000,
                 'stock'       => 20,
                 'weight'      => 199,
-                'image'       => 'products/Wir6FgfNokbAnMop9eRKNZEr5ocD4Ue7UOi4gkZv.jpg',
+                'image'       => 'https://images.unsplash.com/photo-1596742578443-7682ef5251cd?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['camera', 'compact'],
                 'specs'       => [
                     'ram'     => '16GB',
@@ -590,7 +590,7 @@ class ProductSeeder extends Seeder
                 'price'       => 17890000,
                 'stock'       => 25,
                 'weight'      => 213,
-                'image'       => 'products/nF3DszRIQtv7degIW71Ic109qXuJqsHSsO4tiJXd.jpg',
+                'image'       => 'https://images.unsplash.com/photo-1533228100845-08145b01de14?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['camera', 'battery'],
                 'specs'       => [
                     'ram'     => '12GB',
@@ -636,7 +636,7 @@ class ProductSeeder extends Seeder
                 'price'       => 26990000,
                 'stock'       => 18,
                 'weight'      => 225,
-                'image'       => 'products/24tYoWoZXOZMOY2HJbJruqvotx9zkVOHoEecU1T8.webp',
+                'image'       => 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=800&q=80',
                 'tags'        => ['gaming', 'battery'],
                 'specs'       => [
                     'ram'     => '16GB',

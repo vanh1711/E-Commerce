@@ -25,10 +25,10 @@
                 
                 @php
                     $gallery = is_array($product->gallery) ? $product->gallery : [];
-                    $mainImg = $product->image ? asset('storage/' . $product->image) : 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=600&q=80';
-                    $cameraImg = !empty($gallery['camera']) ? asset('storage/' . $gallery['camera']) : $mainImg;
-                    $sideImg = !empty($gallery['side']) ? asset('storage/' . $gallery['side']) : $mainImg;
-                    $backImg = !empty($gallery['back']) ? asset('storage/' . $gallery['back']) : $mainImg;
+                    $mainImg = $product->image_url;
+                    $cameraImg = !empty($gallery['camera']) ? (str_starts_with($gallery['camera'], 'http') ? $gallery['camera'] : asset('storage/' . $gallery['camera'])) : $mainImg;
+                    $sideImg = !empty($gallery['side']) ? (str_starts_with($gallery['side'], 'http') ? $gallery['side'] : asset('storage/' . $gallery['side'])) : $mainImg;
+                    $backImg = !empty($gallery['back']) ? (str_starts_with($gallery['back'], 'http') ? $gallery['back'] : asset('storage/' . $gallery['back'])) : $mainImg;
                 @endphp
 
                 <!-- Ảnh Sản Phẩm Chính -->

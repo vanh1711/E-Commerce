@@ -30,6 +30,22 @@ class Product extends Model
         'tags' => 'array',
     ];
 
+    protected $appends = ['image_url'];
+
+    /**
+     * Đường dẫn ảnh hợp lệ (Hỗ trợ cả URL online https:// và path storage nội bộ)
+     */
+    public function getImageUrlAttribute(): string
+    {
+        if (empty($this->image)) {
+            return 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=600&q=80';
+        }
+        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
+            return $this->image;
+        }
+        return asset('storage/' . $this->image);
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);

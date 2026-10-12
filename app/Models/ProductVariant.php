@@ -66,4 +66,18 @@ class ProductVariant extends Model
     {
         return $this->stock > 0;
     }
+
+    /**
+     * URL ảnh biến thể (hỗ trợ cả http URL online và storage)
+     */
+    public function getImageUrlAttribute(): string
+    {
+        if (empty($this->image)) {
+            return $this->product?->image_url ?? 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=600&q=80';
+        }
+        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
+            return $this->image;
+        }
+        return asset('storage/' . $this->image);
+    }
 }

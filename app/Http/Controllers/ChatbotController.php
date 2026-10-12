@@ -81,10 +81,7 @@ class ChatbotController extends Controller
     private function formatProductsForChat($products): array
     {
         return $products->map(function ($p) {
-            $imageUrl = null;
-            if (!empty($p->image)) {
-                $imageUrl = str_starts_with($p->image, 'http') ? $p->image : asset('storage/' . $p->image);
-            }
+            $imageUrl = $p->image_url;
             $priceFormatted = number_format($p->price, 0, ',', '.') . ' đ';
             $stock = (int) ($p->stock ?? 0);
 

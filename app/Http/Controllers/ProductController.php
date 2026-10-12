@@ -105,7 +105,7 @@ class ProductController extends Controller
                     'brand' => $product->brand ?? 'Chính Hãng',
                     'price' => number_format($product->price) . ' VND',
                     'raw_price' => $product->price,
-                    'image' => $product->image ? asset('storage/' . $product->image) : 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=300&q=80',
+                    'image' => $product->image_url,
                     'url' => route('products.show', $product->id),
                     'category' => $product->category->name ?? 'Điện thoại'
                 ];
@@ -168,7 +168,7 @@ class ProductController extends Controller
                 'brand' => $p->brand ?? 'PhoneStore',
                 'price' => number_format($p->price) . ' đ',
                 'raw_price' => (float)$p->price,
-                'image' => $p->image ? asset('storage/' . $p->image) : 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80',
+                'image' => $p->image_url,
                 'url' => route('products.show', $p->id),
                 'specs' => [
                     'Màn hình' => $specs['screen'] ?? ($p->brand === 'Apple' ? '6.7" Super Retina XDR OLED 120Hz' : '6.8" Dynamic AMOLED 2X 120Hz'),
