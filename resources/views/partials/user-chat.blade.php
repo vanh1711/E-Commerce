@@ -75,18 +75,24 @@
                     <div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs flex-shrink-0 shadow-sm">
                         🤖
                     </div>
-                    <div class="bg-white dark:bg-slate-900 p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 max-w-[85%] leading-relaxed">
+                    <div class="bg-white dark:bg-slate-900 p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 max-w-[88%] leading-relaxed">
                         <p class="font-bold text-blue-600 dark:text-blue-400 mb-1">Xin chào bạn! 👋</p>
-                        <p>Tôi là <strong>Trợ lý AI PhoneStore</strong>. Tôi có thể tư vấn giá máy, cấu hình, so sánh các dòng iPhone / Samsung và chính sách bảo hành 24/7.</p>
+                        <p>Tôi là <strong>Trợ lý AI PhoneStore</strong>. Tôi có thể hỗ trợ bạn xem <strong>Danh mục sản phẩm</strong>, lọc điện thoại theo <strong>Chức năng (Chơi game, Chụp ảnh, Pin trâu,...)</strong> và báo giá chính xác 24/7.</p>
                         <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
-                            <button type="button" onclick="sendAiQuickPrompt('Tư vấn iPhone bán chạy')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-lg text-[10px] font-bold transition">
-                                📱 Giá iPhone
+                            <button type="button" onclick="sendAiCategoryAction()" class="px-2.5 py-1 bg-blue-50 dark:bg-blue-950/80 border border-blue-200 dark:border-blue-900 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer">
+                                <span>📁</span> <span>Danh Mục SP</span>
                             </button>
-                            <button type="button" onclick="sendAiQuickPrompt('Có những dòng Samsung nào?')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-lg text-[10px] font-bold transition">
-                                ✨ Samsung Galaxy
+                            <button type="button" onclick="sendAiUseCaseAction('gaming', 'Chơi Game')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer">
+                                <span>🎮</span> <span>ĐT Chơi Game</span>
                             </button>
-                            <button type="button" onclick="sendAiQuickPrompt('Chính sách bảo hành và ship hàng')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-lg text-[10px] font-bold transition">
-                                🛡️ Bảo hành & Ship
+                            <button type="button" onclick="sendAiUseCaseAction('camera', 'Chụp Ảnh')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer">
+                                <span>📸</span> <span>Chụp Ảnh Đẹp</span>
+                            </button>
+                            <button type="button" onclick="sendAiUseCaseAction('battery', 'Pin Trâu')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer">
+                                <span>🔋</span> <span>Pin Trâu</span>
+                            </button>
+                            <button type="button" onclick="sendAiUseCaseAction('budget', 'Giá Sinh Viên')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer">
+                                <span>🎓</span> <span>Giá Sinh Viên</span>
                             </button>
                         </div>
                     </div>
@@ -283,19 +289,62 @@ function sendAiQuickPrompt(text) {
     }
 }
 
-async function handleSendAiMessage(e) {
+// Bấm nút danh mục: Nếu không có id -> gửi 'Danh mục', nếu có id -> gửi 'Xem danh mục: ' + name
+function sendAiCategoryAction(id = null, name = '') {
+    if (!id) {
+        handleSendAiMessage(null, { message: 'Danh mục', userText: '📁 Danh mục sản phẩm' });
+    } else {
+        handleSendAiMessage(null, { message: 'Xem danh mục: ' + name, category_id: id, userText: '📁 ' + name });
+    }
+}
+
+// Bấm nút chức năng: Nếu không có key -> gửi 'Chức năng', nếu có key -> gửi 'Lọc theo: ' + label
+function sendAiUseCaseAction(key = null, label = '') {
+    if (!key) {
+        handleSendAiMessage(null, { message: 'Chức năng', userText: '🎯 Lọc theo chức năng' });
+    } else {
+        handleSendAiMessage(null, { message: 'Lọc theo chức năng: ' + label, use_case: key, userText: '🎯 ' + (label || key) });
+    }
+}
+
+function handleSuggestedAction(action, value, text) {
+    if (action === 'categories') {
+        sendAiCategoryAction();
+    } else if (action === 'use_cases') {
+        sendAiUseCaseAction();
+    } else if (action === 'use_case') {
+        sendAiUseCaseAction(value, text);
+    } else if (action === 'category') {
+        sendAiCategoryAction(value, text);
+    } else {
+        sendAiQuickPrompt(value || text);
+    }
+}
+
+async function handleSendAiMessage(e, customPayload = null) {
     if (e) e.preventDefault();
     const input = document.getElementById('ai-chat-input');
     const sendBtn = document.getElementById('ai-send-btn');
     const list = document.getElementById('ai-messages-list');
-    if (!input || !list) return;
+    if (!list) return;
 
-    const message = input.value.trim();
-    if (!message) return;
+    let payload = {};
+    let displayText = '';
+
+    if (customPayload) {
+        payload = customPayload;
+        displayText = customPayload.userText || customPayload.message;
+    } else {
+        if (!input) return;
+        const msg = input.value.trim();
+        if (!msg) return;
+        payload = { message: msg };
+        displayText = msg;
+        input.value = '';
+    }
 
     // 1. Render tin nhắn User
-    appendAiMessageBubble('user', message);
-    input.value = '';
+    appendAiMessageBubble('user', displayText);
     if (sendBtn) sendBtn.disabled = true;
 
     // 2. Typing Indicator
@@ -323,39 +372,36 @@ async function handleSendAiMessage(e) {
                 'X-CSRF-TOKEN': csrfToken,
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify(payload)
         });
 
         const data = await response.json();
         const typingEl = document.getElementById(typingId);
         if (typingEl) typingEl.remove();
 
-        appendAiMessageBubble('bot', data.reply || 'Xin lỗi, tôi không thể xử lý câu hỏi này lúc này.');
+        appendAiMessageBubble('bot', data);
     } catch (err) {
         const typingEl = document.getElementById(typingId);
         if (typingEl) typingEl.remove();
-        appendAiMessageBubble('bot', 'Có lỗi kết nối. Bạn có thể nhấn nút **Gặp Admin** phía trên để được tư vấn viên hỗ trợ nhé!');
+        appendAiMessageBubble('bot', { reply: 'Có lỗi kết nối. Bạn có thể nhấn nút **Gặp Admin** phía trên để được tư vấn viên hỗ trợ nhé!' });
     } finally {
         if (sendBtn) sendBtn.disabled = false;
         list.scrollTop = list.scrollHeight;
     }
 }
 
-function appendAiMessageBubble(sender, text) {
+function appendAiMessageBubble(sender, data) {
     const list = document.getElementById('ai-messages-list');
     if (!list) return;
 
     const row = document.createElement('div');
     row.className = 'chat-bubble-fade ' + (sender === 'user' ? 'flex items-start justify-end gap-2' : 'flex items-start gap-2');
 
-    let formatted = escapeChatHtml(text);
-    // Parse bold **text**
-    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-blue-600 dark:text-blue-400">$1</strong>');
-    formatted = formatted.replace(/\n/g, '<br>');
-
     if (sender === 'user') {
+        let text = typeof data === 'string' ? data : (data.reply || '');
+        let formatted = escapeChatHtml(text).replace(/\n/g, '<br>');
         row.innerHTML = `
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] leading-relaxed text-xs break-words">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] leading-relaxed text-xs break-words font-medium">
                 ${formatted}
             </div>
             <div class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-black flex-shrink-0">
@@ -363,12 +409,103 @@ function appendAiMessageBubble(sender, text) {
             </div>
         `;
     } else {
+        // Bot response
+        let text = typeof data === 'string' ? data : (data.reply || '');
+        let formatted = escapeChatHtml(text);
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-blue-600 dark:text-blue-400">$1</strong>');
+        formatted = formatted.replace(/\n/g, '<br>');
+
+        let extraContent = '';
+
+        // 1. Render Danh Mục (Categories List)
+        if (data.type === 'categories' && Array.isArray(data.categories) && data.categories.length > 0) {
+            extraContent += `
+                <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-1.5">
+                    ${data.categories.map(c => `
+                        <button type="button" onclick="sendAiCategoryAction(${c.id}, '${escapeChatHtml(c.name)}')" 
+                                class="flex items-center gap-2 p-2 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 hover:bg-blue-50 dark:hover:bg-blue-950/80 border border-slate-200/80 dark:border-slate-700 hover:border-blue-500 transition text-left cursor-pointer group shadow-xs">
+                            <span class="text-base flex-shrink-0">${c.icon || '📱'}</span>
+                            <div class="flex-1 min-w-0">
+                                <span class="block font-bold text-[11px] text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">${escapeChatHtml(c.name)}</span>
+                                <span class="block text-[9px] text-slate-400 font-medium">${c.products_count} sản phẩm</span>
+                            </div>
+                            <span class="text-[10px] text-slate-300 dark:text-slate-600 group-hover:text-blue-500">→</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // 2. Render Chức Năng (Use-cases List)
+        if (data.type === 'use_cases' && Array.isArray(data.use_cases) && data.use_cases.length > 0) {
+            extraContent += `
+                <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
+                    ${data.use_cases.map(u => `
+                        <button type="button" onclick="sendAiUseCaseAction('${u.key}', '${escapeChatHtml(u.short || u.label)}')" 
+                                class="w-full flex items-center gap-2.5 p-2 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 hover:bg-blue-50 dark:hover:bg-blue-950/80 border border-slate-200/80 dark:border-slate-700 hover:border-blue-500 transition text-left cursor-pointer group shadow-xs">
+                            <span class="text-lg flex-shrink-0">${u.icon || '🎯'}</span>
+                            <div class="flex-1 min-w-0">
+                                <span class="block font-extrabold text-[11px] text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">${escapeChatHtml(u.label)}</span>
+                                <span class="block text-[10px] text-slate-400 truncate">${escapeChatHtml(u.desc)}</span>
+                            </div>
+                            <span class="text-xs text-blue-500">→</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // 3. Render Danh Sách Sản Phẩm (Products Cards)
+        if (data.type === 'products' && Array.isArray(data.products) && data.products.length > 0) {
+            extraContent += `
+                <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2 max-h-[320px] overflow-y-auto pr-0.5">
+                    ${data.products.map(p => `
+                        <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700 flex items-center gap-2.5 hover:shadow-xs transition">
+                            <div class="w-12 h-12 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-1 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                ${p.image_url 
+                                    ? `<img src="${p.image_url}" class="max-h-full max-w-full object-contain" alt="">`
+                                    : `<span class="text-xl">📱</span>`
+                                }
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h5 class="font-extrabold text-[11px] text-slate-900 dark:text-white truncate" title="${escapeChatHtml(p.name)}">${escapeChatHtml(p.name)}</h5>
+                                <div class="font-black text-rose-600 dark:text-rose-400 text-xs mt-0.5">${p.price_formatted}</div>
+                                <div class="flex items-center gap-1.5 mt-0.5 text-[9px]">
+                                    <span class="${p.is_in_stock ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-400'}">● ${p.status_text}</span>
+                                    <span class="text-slate-400">| ${escapeChatHtml(p.brand)}</span>
+                                </div>
+                            </div>
+                            <a href="${p.url}" target="_blank" 
+                               class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-black tracking-wide shadow-xs flex-shrink-0 transition hover:scale-105">
+                                Xem máy
+                            </a>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // 4. Render Nút Gợi Ý Nhanh (Suggested Actions)
+        if (Array.isArray(data.suggested_actions) && data.suggested_actions.length > 0) {
+            extraContent += `
+                <div class="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+                    ${data.suggested_actions.map(act => `
+                        <button type="button" onclick="handleSuggestedAction('${act.action}', '${escapeChatHtml(act.value || '')}', '${escapeChatHtml(act.text)}')" 
+                                class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950 text-slate-700 dark:text-slate-300 hover:text-blue-600 rounded-lg text-[10px] font-bold transition cursor-pointer">
+                            ${escapeChatHtml(act.text)}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
         row.innerHTML = `
-            <div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs flex-shrink-0 shadow-sm">
+            <div class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs flex-shrink-0 shadow-sm mt-0.5">
                 🤖
             </div>
-            <div class="bg-white dark:bg-slate-900 p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 max-w-[85%] leading-relaxed text-xs break-words">
+            <div class="bg-white dark:bg-slate-900 p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 max-w-[88%] leading-relaxed text-xs break-words">
                 ${formatted}
+                ${extraContent}
             </div>
         `;
     }

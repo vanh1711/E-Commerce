@@ -29,11 +29,11 @@ class AdminController extends Controller
         $completedOrders  = Order::where('shipping_status', 'delivered')->count();
         $cancelledOrders  = Order::where('shipping_status', 'cancelled')->count();
 
-        // Doanh thu thực tế (Từ các đơn đã thanh toán hoặc đã giao thành công)
+        // Doanh thu thực tế từ tiền hàng (không tính phí ship vào thống kê)
         $totalRevenue     = Order::where(function ($q) {
                                 $q->where('payment_status', 'paid')
                                   ->orWhere('shipping_status', 'delivered');
-                            })->sum('total_amount') ?? 0;
+                            })->selectRaw('COALESCE(SUM(COALESCE(subtotal, total_amount - shipping_fee, total_amount)), 0) as total')->value('total') ?? 0;
 
         // 3. Sản phẩm cảnh báo tồn kho thấp (<= 5 máy)
         $lowStockProducts = Product::with(['category', 'variants'])

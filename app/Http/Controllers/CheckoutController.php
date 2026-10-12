@@ -77,12 +77,8 @@ class CheckoutController extends Controller
 
         $distance = $this->calculateHaversineDistance(self::STORE_LAT, self::STORE_LNG, $lat, $lng);
         
-        // Dưới 10km: Free ship (0đ). Hơn 10km: Mỗi km tính 10.000đ
+        // Miễn phí vận chuyển theo khoảng cách GPS (Đã loại bỏ cơ chế cộng 10k/km)
         $shippingFee = 0;
-        if ($distance > 10) {
-            $extraKm = ceil($distance - 10);
-            $shippingFee = $extraKm * 10000;
-        }
 
         return response()->json([
             'success'      => true,
@@ -90,8 +86,8 @@ class CheckoutController extends Controller
             'shipping_fee' => $shippingFee,
             'store_lat'    => self::STORE_LAT,
             'store_lng'    => self::STORE_LNG,
-            'fee_formatted'=> number_format($shippingFee) . ' đ',
-            'is_free'      => ($distance <= 10),
+            'fee_formatted'=> '0 đ (Miễn phí)',
+            'is_free'      => true,
         ]);
     }
 
@@ -229,7 +225,7 @@ class CheckoutController extends Controller
         }
         unset($cItem);
 
-        // Tính phí ship chuẩn xác trên máy chủ (Chống giả mạo phí ship 0đ từ client - Fix lỗi #3)
+        // Tính phí ship chuẩn xác trên máy chủ (Lấy theo GHN Express khi có quận/phường, loại bỏ tính 10k/km GPS)
         $shippingFee = 0;
         if ($request->filled('to_district_id') && $request->filled('to_ward_code')) {
             $feeRes = $ghn->calculateFee(array_merge([
@@ -241,15 +237,6 @@ class CheckoutController extends Controller
             if (!empty($feeRes['data']['total'])) {
                 $shippingFee = (float) $feeRes['data']['total'];
             }
-        } elseif ($request->filled('latitude') && $request->filled('longitude')) {
-            $lat = (float) $request->input('latitude');
-            $lng = (float) $request->input('longitude');
-            $distance = $this->calculateHaversineDistance(self::STORE_LAT, self::STORE_LNG, $lat, $lng);
-            if ($distance > 10) {
-                $shippingFee = ceil($distance - 10) * 10000;
-            }
-        } else {
-            $shippingFee = 30000; // Cước cơ bản mặc định nếu không có dữ liệu GPS / GHN
         }
 
         $totalAmount = $subtotal + $shippingFee;

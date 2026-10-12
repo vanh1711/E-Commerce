@@ -51,12 +51,12 @@ class ReportController extends Controller
     }
 
     /**
-     * Doanh thu theo ngày tạo đơn (gồm cả phí vận chuyển)
+     * Doanh thu theo ngày tạo đơn (loại bỏ phí vận chuyển - chỉ tính tiền hàng thực tế)
      */
     private function dailyRevenue(): Collection
     {
         return $this->paidOrders()
-            ->selectRaw('DATE(orders.created_at) as date, SUM(orders.total_amount) as total_revenue, COUNT(*) as order_count')
+            ->selectRaw('DATE(orders.created_at) as date, SUM(COALESCE(orders.subtotal, orders.total_amount - orders.shipping_fee, orders.total_amount)) as total_revenue, COUNT(*) as order_count')
             ->groupByRaw('DATE(orders.created_at)')
             ->orderBy('date')
             ->get();
@@ -143,7 +143,7 @@ class ReportController extends Controller
             ->limit(1);
 
         $paid = $this->paidOrders()
-            ->select('orders.total_amount')
+            ->selectRaw('COALESCE(orders.subtotal, orders.total_amount - orders.shipping_fee, orders.total_amount) as total_amount')
             ->selectSub($gateway, 'gateway')
             ->selectRaw("CASE WHEN orders.payment_method = 'cod' THEN 'cod' ELSE 'momo' END as legacy_gateway");
 

@@ -43,7 +43,7 @@
         <span>/</span>
         <a href="{{ route('cart.index') }}" class="hover:text-blue-600">Giỏ hàng</a>
         <span>/</span>
-        <span class="text-blue-600 font-extrabold">Thanh toán & Đặt ship GPS</span>
+        <span class="text-blue-600 font-extrabold">Thanh toán & Giao hàng</span>
     </div>
 
     @if(session('error'))
@@ -506,7 +506,7 @@
                             <span class="font-bold text-slate-900 dark:text-white" id="subtotalDisplay">{{ number_format($subtotal) }} đ</span>
                         </div>
                         <div class="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                            <span>Phí giao hàng (Theo GPS):</span>
+                            <span>Phí giao hàng:</span>
                             <span class="font-black text-emerald-600 dark:text-emerald-400" id="shippingFeeDisplay">0 đ (Miễn phí)</span>
                         </div>
                         <div class="flex justify-between items-baseline pt-3 border-t border-slate-100 dark:border-slate-800">
