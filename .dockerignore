@@ -17,10 +17,14 @@ node_modules
 tests
 .phpunit.cache
 .phpunit.result.cache
-storage
-bootstrap/cache
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+!storage/app/public/**
+bootstrap/cache/*
 public/hot
-public/storage
+!public/storage/**
 database/*.sqlite*
 **/*.sql
 **/*.pem
