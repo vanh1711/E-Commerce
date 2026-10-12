@@ -14,7 +14,7 @@
                 <span>📁</span> Danh Mục Hệ Thống
             </div>
             <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Danh Sách Danh Mục Hàng Hóa</h1>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Phân loại các thương hiệu điện thoại và phụ kiện trong hệ thống PhoneStore.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Phân loại các thương hiệu điện thoại trong hệ thống PhoneStore.</p>
         </div>
 
         <div class="flex items-center gap-3">

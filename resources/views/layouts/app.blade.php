@@ -354,7 +354,7 @@
                 <div class="space-y-3">
                     <span class="text-xl font-black text-white uppercase tracking-tight">PHONE<span class="text-blue-500">STORE</span></span>
                     <p class="text-xs text-slate-400 leading-relaxed">
-                        Hệ thống bán lẻ thiết bị công nghệ chính hãng hàng đầu. Cam kết chất lượng, bảo hành 1 đổi 1 và dịch vụ tận tâm.
+                        Hệ thống bán lẻ điện thoại thông minh chính hãng hàng đầu. Cam kết chất lượng, bảo hành 1 đổi 1 và dịch vụ tận tâm.
                     </p>
                 </div>
                 <div>
@@ -362,7 +362,7 @@
                     <ul class="space-y-2 text-xs">
                         <li><a href="{{ route('home') }}" class="hover:text-white transition">iPhone 16 Series</a></li>
                         <li><a href="{{ route('home') }}" class="hover:text-white transition">Samsung Galaxy S24</a></li>
-                        <li><a href="{{ route('home') }}" class="hover:text-white transition">Phụ kiện công nghệ</a></li>
+                        <li><a href="{{ route('home') }}" class="hover:text-white transition">Xiaomi & Gaming Phone</a></li>
                     </ul>
                 </div>
                 <div>

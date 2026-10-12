@@ -10,16 +10,15 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['name' => 'Điện Thoại', 'description' => 'Flagship smartphones và điện thoại thông minh chính hãng.'],
-            ['name' => 'Máy Tính Bảng', 'description' => 'iPad, Galaxy Tab và máy tính bảng cao cấp.'],
-            ['name' => 'Phụ Kiện', 'description' => 'Cáp sạc, tai nghe, ốp lưng và phụ kiện công nghệ.'],
-            ['name' => 'Âm Thanh', 'description' => 'Tai nghe không dây, loa Bluetooth chất lượng cao.'],
+            'iPhone (Apple)',
+            'Samsung Galaxy',
+            'Xiaomi & Redmi',
+            'Google Pixel',
+            'Gaming Phone',
         ];
 
-        foreach ($categories as $cat) {
-            Category::firstOrCreate(
-                ['name' => $cat['name']]
-            );
+        foreach ($categories as $name) {
+            Category::firstOrCreate(['name' => $name]);
         }
     }
 }

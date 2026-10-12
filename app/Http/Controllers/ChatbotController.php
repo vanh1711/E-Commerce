@@ -66,12 +66,13 @@ class ChatbotController extends Controller
     private function getCategoryIcon(string $name): string
     {
         $lower = mb_strtolower($name, 'UTF-8');
+        if (str_contains($lower, 'apple') || str_contains($lower, 'iphone')) return '🍏';
+        if (str_contains($lower, 'samsung') || str_contains($lower, 'galaxy')) return '🌌';
+        if (str_contains($lower, 'xiaomi') || str_contains($lower, 'redmi')) return '⚡';
+        if (str_contains($lower, 'pixel') || str_contains($lower, 'google')) return '🤖';
+        if (str_contains($lower, 'gaming') || str_contains($lower, 'rog')) return '🎮';
         if (str_contains($lower, 'thoại') || str_contains($lower, 'phone')) return '📱';
-        if (str_contains($lower, 'bảng') || str_contains($lower, 'tablet') || str_contains($lower, 'ipad')) return '💻';
-        if (str_contains($lower, 'phụ kiện') || str_contains($lower, 'accessory')) return '🎧';
-        if (str_contains($lower, 'âm thanh') || str_contains($lower, 'loa') || str_contains($lower, 'audio')) return '🔊';
-        if (str_contains($lower, 'đồng hồ') || str_contains($lower, 'watch')) return '⌚';
-        return '📦';
+        return '📱';
     }
 
     /**
