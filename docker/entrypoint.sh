@@ -44,6 +44,14 @@ mkdir -p storage/framework/{cache/data,sessions,views} storage/logs storage/app/
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R ug+rwX storage bootstrap/cache
 
+# Ensure public storage link exists
+su-exec www-data php artisan storage:link --force || true
+if [ ! -e "/var/www/public/storage" ]; then
+    mkdir -p /var/www/public/storage
+    cp -r /var/www/storage/app/public/* /var/www/public/storage/ 2>/dev/null || true
+    chown -R www-data:www-data /var/www/public/storage
+fi
+
 su-exec www-data php artisan config:cache
 su-exec www-data php artisan route:cache
 su-exec www-data php artisan view:cache
