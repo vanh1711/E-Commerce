@@ -49,7 +49,7 @@ return [
         'partner_code' => env('MOMO_PARTNER_CODE', 'MOMOBKUN20180529'),
         'access_key'   => env('MOMO_ACCESS_KEY', 'klm05TvNBzhg7h7j'),
         'secret_key'   => env('MOMO_SECRET_KEY', 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa'),
-        'request_type' => env('MOMO_REQUEST_TYPE', 'payWithATM'),
+        'request_type' => env('MOMO_REQUEST_TYPE', 'captureWallet'),
         'verify_ssl'   => env('MOMO_VERIFY_SSL', false),
         'redirect_url' => env('MOMO_REDIRECT_URL'),
         'ipn_url'      => env('MOMO_IPN_URL'),

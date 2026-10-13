@@ -43,6 +43,51 @@ class MomoController extends Controller
     }
 
     /**
+     * Giả lập thanh toán MoMo Sandbox thành công cho việc test & đánh giá Lab 06
+     * (Khi cổng Napas bên thứ ba của MoMo lỗi hoặc tester không dùng app MoMo Test)
+     */
+    public function simulateSuccess(Order $order, GHNOrderService $ghnOrders, MomoService $momo)
+    {
+        if ($order->user_id !== Auth::id() && !Auth::user()?->is_admin) {
+            abort(403, 'Bạn không có quyền truy cập đơn hàng này.');
+        }
+
+        if ($order->payment_status === 'paid') {
+            return redirect()->route('orders.show', $order->id)->with('info', 'Đơn hàng này đã được thanh toán thành công trước đó.');
+        }
+
+        $transaction = PaymentTransaction::where('order_id', $order->id)
+            ->where('gateway', 'momo')
+            ->latest()
+            ->first();
+
+        if (!$transaction) {
+            $transaction = $this->newTransaction($order);
+        }
+
+        $gatewayOrderId = $transaction->gateway_order_id ?: ($order->id . '_' . $transaction->id . '_' . time());
+        $transaction->update(['gateway_order_id' => $gatewayOrderId]);
+
+        $mockPayload = [
+            'orderId'        => $gatewayOrderId,
+            'amount'         => (string) ((int) ($order->total_amount ?? $order->total_price)),
+            'resultCode'     => 0,
+            'transId'        => 'MOCK_' . time() . '_' . rand(100, 999),
+            'message'        => 'Thanh toán MoMo Sandbox thành công (Chế độ Thử nghiệm)',
+            'extraData'      => (string) $order->id,
+            'responseTime'   => (string) (time() * 1000),
+        ];
+
+        $result = $this->completePayment($mockPayload, $ghnOrders, $momo);
+
+        $message = in_array($result, ['created', 'already_created'], true)
+            ? 'Giả lập thanh toán MoMo thành công! Vận đơn GHN Express đã được tự động tạo.'
+            : 'Giả lập thanh toán MoMo thành công! Đơn hàng đã chuyển sang trạng thái đã thanh toán.';
+
+        return redirect()->route('orders.show', $order->id)->with('success', $message);
+    }
+
+    /**
      * Xử lý khi khách hàng hoàn tất hoặc hủy thanh toán và quay về website
      */
     public function callback(Request $request, GHNOrderService $ghnOrders, MomoService $momo)

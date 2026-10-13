@@ -131,8 +131,10 @@ Route::middleware(['auth'])->group(function () {
     // Luồng thanh toán MoMo Sandbox
     Route::get('/orders/{order}/start-momo', [\App\Http\Controllers\User\MomoController::class, 'start'])->name('orders.momo.start');
     Route::get('/orders/{order}/pay/momo', [\App\Http\Controllers\User\MomoController::class, 'payAgain'])->name('orders.momo.pay');
+    Route::post('/orders/{order}/momo/simulate-success', [\App\Http\Controllers\User\MomoController::class, 'simulateSuccess'])->name('orders.momo.simulate-success');
     Route::get('/user/orders/{order}/start-momo', [\App\Http\Controllers\User\MomoController::class, 'start'])->name('user.orders.momo.start');
     Route::get('/user/orders/{order}/pay/momo', [\App\Http\Controllers\User\MomoController::class, 'payAgain'])->name('user.orders.momo.pay');
+    Route::post('/user/orders/{order}/momo/simulate-success', [\App\Http\Controllers\User\MomoController::class, 'simulateSuccess'])->name('user.orders.momo.simulate-success');
 
     // ===== ROUTES NHẮN TIN LIVECHAT KHÁCH HÀNG (LAB 07) =====
     Route::post('/user/chat/send', [\App\Http\Controllers\User\ChatController::class, 'send'])->name('user.chat.send');

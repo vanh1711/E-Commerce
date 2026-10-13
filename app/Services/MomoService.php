@@ -27,7 +27,7 @@ class MomoService
         $ipnUrl      = config('services.momo.ipn_url') ?: route('payment.momo.ipn');
         $extraData   = (string) $order->id;
         $requestId   = (string) time();
-        $requestType = config('services.momo.request_type', 'payWithATM');
+        $requestType = config('services.momo.request_type', 'captureWallet');
 
         $rawHash = 'accessKey=' . $accessKey .
             '&amount=' . $amount .

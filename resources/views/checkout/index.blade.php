@@ -358,58 +358,22 @@
                                 MoMo
                             </div>
                             <div>
-                                <h4 class="text-xs font-black text-slate-900 dark:text-white">Thanh toán qua Cổng MoMo Sandbox (Môi trường Thử nghiệm)</h4>
-                                <p class="text-[11px] text-slate-600 dark:text-slate-400">Sau khi bấm <strong>"Xác Nhận Đặt Hàng"</strong>, bạn sẽ được chuyển hướng sang giao diện MoMo để hoàn tất thanh toán.</p>
+                                <h4 class="text-xs font-black text-slate-900 dark:text-white">Thanh toán qua Cổng MoMo Sandbox (Quét mã QR Code / Ví MoMo)</h4>
+                                <p class="text-[11px] text-slate-600 dark:text-slate-400">Sau khi bấm <strong>"Xác Nhận Đặt Hàng"</strong>, hệ thống sẽ mở giao diện Cổng MoMo chính thức kèm mã QR để bạn quét thanh toán.</p>
                             </div>
                         </div>
 
-                        <!-- Bảng tài khoản thẻ test Sandbox từ Lab06 -->
-                        <div class="overflow-x-auto rounded-xl border border-pink-200/80 dark:border-pink-900/40 bg-white/80 dark:bg-slate-900/80">
-                            <div class="p-2.5 bg-pink-100/60 dark:bg-pink-950/60 font-black text-[10px] text-pink-900 dark:text-pink-300 uppercase tracking-wider flex items-center justify-between">
-                                <span>📋 Thẻ Test MoMo Sandbox (Lab 06)</span>
-                                <span class="text-[9px] font-medium lowercase">Click số thẻ để copy</span>
+                        <!-- Hướng dẫn thanh toán chuẩn MoMo QR Code -->
+                        <div class="p-3.5 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-pink-200/80 dark:border-pink-900/40 space-y-2 text-[11px]">
+                            <div class="flex items-center gap-2 font-black text-pink-700 dark:text-pink-300">
+                                <span>📱</span>
+                                <span>Hướng Dẫn Thanh Toán & Thử Nghiệm Sandbox:</span>
                             </div>
-                            <table class="w-full text-left text-[11px]">
-                                <thead>
-                                    <tr class="border-b border-pink-100 dark:border-pink-900/30 text-slate-500 dark:text-slate-400 font-bold">
-                                        <th class="py-1.5 px-3">Tên chủ thẻ</th>
-                                        <th class="py-1.5 px-3">Số thẻ ATM</th>
-                                        <th class="py-1.5 px-3">Hạn dùng</th>
-                                        <th class="py-1.5 px-3">OTP</th>
-                                        <th class="py-1.5 px-3">Kết quả test</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-pink-50 dark:divide-pink-900/20 font-mono">
-                                    <tr class="hover:bg-pink-50/50 dark:hover:bg-pink-950/30">
-                                        <td class="py-1.5 px-3 font-sans font-bold text-slate-800 dark:text-slate-200">NGUYEN VAN A</td>
-                                        <td class="py-1.5 px-3 text-blue-600 dark:text-blue-400 font-bold select-all cursor-pointer" onclick="navigator.clipboard.writeText('9704000000000018'); alert('Đã copy số thẻ!');">9704 0000 0000 0018</td>
-                                        <td class="py-1.5 px-3 text-slate-600 dark:text-slate-300">12/30</td>
-                                        <td class="py-1.5 px-3 text-slate-600 dark:text-slate-300">OTP bất kỳ</td>
-                                        <td class="py-1.5 px-3 font-sans text-emerald-600 dark:text-emerald-400 font-bold">✓ Thành công</td>
-                                    </tr>
-                                    <tr class="hover:bg-pink-50/50 dark:hover:bg-pink-950/30">
-                                        <td class="py-1.5 px-3 font-sans font-bold text-slate-800 dark:text-slate-200">NGUYEN VAN A</td>
-                                        <td class="py-1.5 px-3 text-blue-600 dark:text-blue-400 font-bold select-all cursor-pointer" onclick="navigator.clipboard.writeText('9704000000000026'); alert('Đã copy số thẻ!');">9704 0000 0000 0026</td>
-                                        <td class="py-1.5 px-3 text-slate-600 dark:text-slate-300">12/30</td>
-                                        <td class="py-1.5 px-3 text-slate-600 dark:text-slate-300">OTP bất kỳ</td>
-                                        <td class="py-1.5 px-3 font-sans text-rose-600 dark:text-rose-400 font-bold">✗ Thẻ bị khóa</td>
-                                    </tr>
-                                    <tr class="hover:bg-pink-50/50 dark:hover:bg-pink-950/30">
-                                        <td class="py-1.5 px-3 font-sans font-bold text-slate-800 dark:text-slate-200">NGUYEN VAN A</td>
-                                        <td class="py-1.5 px-3 text-blue-600 dark:text-blue-400 font-bold select-all cursor-pointer" onclick="navigator.clipboard.writeText('9704000000000034'); alert('Đã copy số thẻ!');">9704 0000 0000 0034</td>
-                                        <td class="py-1.5 px-3 text-slate-600 dark:text-slate-300">12/30</td>
-                                        <td class="py-1.5 px-3 text-slate-600 dark:text-slate-300">OTP bất kỳ</td>
-                                        <td class="py-1.5 px-3 font-sans text-amber-600 dark:text-amber-400 font-bold">✗ Không đủ tiền</td>
-                                    </tr>
-                                    <tr class="hover:bg-pink-50/50 dark:hover:bg-pink-950/30">
-                                        <td class="py-1.5 px-3 font-sans font-bold text-slate-800 dark:text-slate-200">NGUYEN VAN A</td>
-                                        <td class="py-1.5 px-3 text-blue-600 dark:text-blue-400 font-bold select-all cursor-pointer" onclick="navigator.clipboard.writeText('9704000000000042'); alert('Đã copy số thẻ!');">9704 0000 0000 0042</td>
-                                        <td class="py-1.5 px-3 text-slate-600 dark:text-slate-300">12/30</td>
-                                        <td class="py-1.5 px-3 text-slate-600 dark:text-slate-300">OTP bất kỳ</td>
-                                        <td class="py-1.5 px-3 font-sans text-purple-600 dark:text-purple-400 font-bold">✗ Hạn mức thẻ</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <ul class="space-y-1.5 text-slate-600 dark:text-slate-300 pl-4 list-disc">
+                                <li><strong>Cách 1 (Quét QR thật):</strong> Dùng camera hoặc ứng dụng MoMo (MoMo Test) quét mã QR hiển thị trên cổng thanh toán MoMo để hoàn tất.</li>
+                                <li><strong>Cách 2 (Giả lập nhanh khi test):</strong> Nếu không có app MoMo trên điện thoại hoặc môi trường test MoMo bảo trì, bạn có thể vào <em>Chi tiết đơn hàng</em> và bấm nút <strong class="text-emerald-600 dark:text-emerald-400">"⚡ Giả Lập MoMo Thành Công"</strong> để kiểm tra luồng hoàn tất đơn & tạo vận đơn GHN tự động.</li>
+                                <li class="text-[10px] text-amber-700 dark:text-amber-300/90 italic">Lưu ý: Hệ thống đã tối ưu sang chuẩn MoMo QR (captureWallet) thay vì cổng Napas ATM cũ (vốn đang bị máy chủ đối tác báo "Yêu cầu không hợp lệ").</li>
+                            </ul>
                         </div>
                     </div>
 

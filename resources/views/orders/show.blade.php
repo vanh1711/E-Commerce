@@ -66,8 +66,14 @@
         <div class="flex flex-wrap items-center gap-3">
             @if($order->payment_method === 'momo' && $order->payment_status !== 'paid' && $order->shipping_status !== 'cancelled')
             <a href="{{ route('orders.momo.pay', $order->id) }}" class="px-4 py-2 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-black text-xs rounded-full shadow-lg shadow-pink-500/25 transition flex items-center gap-1.5 cursor-pointer">
-                <span>💳</span> Thanh Toán MoMo Ngay
+                <span>💳</span> Thanh Toán MoMo (QR Code)
             </a>
+            <form action="{{ route('orders.momo.simulate-success', $order->id) }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs rounded-full shadow-md shadow-emerald-500/20 transition flex items-center gap-1.5 cursor-pointer" title="Giả lập callback MoMo thành công cho môi trường Sandbox">
+                    <span>⚡</span> Giả Lập MoMo Thành Công
+                </button>
+            </form>
             @endif
 
             <span class="px-3.5 py-1.5 rounded-full text-xs font-black border {{ $order->shipping_status_badge }}">
@@ -313,8 +319,14 @@
 
             @if($order->payment_method === 'momo' && $order->payment_status !== 'paid' && $order->shipping_status !== 'cancelled')
             <a href="{{ route('orders.momo.pay', $order->id) }}" class="w-full py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-black text-xs rounded-2xl shadow-lg shadow-pink-500/25 transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
-                <span>💳</span> Thanh Toán Qua Ví MoMo
+                <span>💳</span> Thanh Toán Qua Ví MoMo (QR Code)
             </a>
+            <form action="{{ route('orders.momo.simulate-success', $order->id) }}" method="POST" class="w-full">
+                @csrf
+                <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs rounded-2xl shadow-md transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span>⚡</span> [Sandbox Test] Giả Lập MoMo Thành Công
+                </button>
+            </form>
             @endif
 
             <a href="{{ route('orders.index') }}" class="w-full py-3 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-extrabold text-xs rounded-2xl border border-blue-200 dark:border-blue-800 transition text-center flex items-center justify-center gap-1.5">
