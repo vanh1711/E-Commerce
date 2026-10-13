@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -44,59 +45,65 @@ class GHNService
     }
 
     /**
-     * Lấy danh sách Tỉnh / Thành Phố từ GHN
+     * Lấy danh sách Tỉnh / Thành Phố từ GHN (Có Cache 7 ngày để tối ưu tốc độ)
      */
     public function getProvinces(): array
     {
-        $res = $this->get('/master-data/province');
-        if (!empty($res['data']) && is_array($res['data'])) {
-            return $res;
-        }
+        return Cache::remember('ghn_master_provinces', 86400 * 7, function () {
+            $res = $this->get('/master-data/province');
+            if (!empty($res['data']) && is_array($res['data'])) {
+                return $res;
+            }
 
-        // Fallback danh sách các Tỉnh/Thành phố lớn nếu API Test chưa có token thực tế
-        return [
-            'code'    => 200,
-            'message' => 'Success (Local Fallback)',
-            'data'    => $this->fallbackProvinces(),
-        ];
+            // Fallback danh sách các Tỉnh/Thành phố lớn nếu API Test chưa có token thực tế
+            return [
+                'code'    => 200,
+                'message' => 'Success (Local Fallback)',
+                'data'    => $this->fallbackProvinces(),
+            ];
+        });
     }
 
     /**
-     * Lấy danh sách Quận / Huyện theo ProvinceID
+     * Lấy danh sách Quận / Huyện theo ProvinceID (Có Cache 7 ngày)
      */
     public function getDistricts(int $provinceId): array
     {
-        $res = $this->get('/master-data/district', [
-            'province_id' => $provinceId,
-        ]);
-        if (!empty($res['data']) && is_array($res['data'])) {
-            return $res;
-        }
+        return Cache::remember("ghn_master_districts_{$provinceId}", 86400 * 7, function () use ($provinceId) {
+            $res = $this->get('/master-data/district', [
+                'province_id' => $provinceId,
+            ]);
+            if (!empty($res['data']) && is_array($res['data'])) {
+                return $res;
+            }
 
-        return [
-            'code'    => 200,
-            'message' => 'Success (Local Fallback)',
-            'data'    => $this->fallbackDistricts($provinceId),
-        ];
+            return [
+                'code'    => 200,
+                'message' => 'Success (Local Fallback)',
+                'data'    => $this->fallbackDistricts($provinceId),
+            ];
+        });
     }
 
     /**
-     * Lấy danh sách Phường / Xã theo DistrictID
+     * Lấy danh sách Phường / Xã theo DistrictID (Có Cache 7 ngày)
      */
     public function getWards(int $districtId): array
     {
-        $res = $this->get('/master-data/ward', [
-            'district_id' => $districtId,
-        ]);
-        if (!empty($res['data']) && is_array($res['data'])) {
-            return $res;
-        }
+        return Cache::remember("ghn_master_wards_{$districtId}", 86400 * 7, function () use ($districtId) {
+            $res = $this->get('/master-data/ward', [
+                'district_id' => $districtId,
+            ]);
+            if (!empty($res['data']) && is_array($res['data'])) {
+                return $res;
+            }
 
-        return [
-            'code'    => 200,
-            'message' => 'Success (Local Fallback)',
-            'data'    => $this->fallbackWards($districtId),
-        ];
+            return [
+                'code'    => 200,
+                'message' => 'Success (Local Fallback)',
+                'data'    => $this->fallbackWards($districtId),
+            ];
+        });
     }
 
     /**

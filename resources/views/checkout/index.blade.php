@@ -116,7 +116,7 @@
                     </div>
                     <div class="grid grid-cols-1 gap-2.5 max-h-48 overflow-y-auto pr-1">
                         @foreach($savedAddresses as $addr)
-                        <button type="button" onclick="applySavedAddress({{ $addr->toJson() }})"
+                        <button type="button" onclick="applySavedAddress({{ $addr->toJson() }}, this)"
                                 class="saved-addr-btn w-full text-left p-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 bg-slate-50/50 dark:bg-slate-800/60 transition cursor-pointer group">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1 min-w-0">
@@ -629,164 +629,229 @@
     let isFullscreen = false;
     let currentShippingFee = 0;
 
-    // ================= SỔ ĐỊA CHỈ ĐÃ LƯU - FILL FORM 1-CLICK =================
-    function applySavedAddress(addr) {
-        // Fill thông tin người nhận
-        const nameInput = document.querySelector('input[name="customer_name"]');
-        const phoneInput = document.querySelector('input[name="customer_phone"]');
-        const addressInput = document.getElementById('input_address');
+    let provincesLoadedPromise = null;
+    let isApplyingAddress = false;
 
-        if (nameInput && addr.recipient_name) nameInput.value = addr.recipient_name;
-        if (phoneInput && addr.phone) phoneInput.value = addr.phone;
-        if (addressInput && addr.address_line) addressInput.value = addr.address_line;
+    // Load danh sách Tỉnh/Thành từ API (trả về Promise)
+    function loadProvinces() {
+        const provinceSelect = document.getElementById('province_select');
+        if (!provinceSelect) return Promise.resolve([]);
 
-        // Fill hidden values
-        document.getElementById('province_name').value = addr.province_name || '';
-        document.getElementById('district_name').value = addr.district_name || '';
-        document.getElementById('ward_name').value = addr.ward_name || '';
+        provinceSelect.innerHTML = '<option value="">⏳ Đang nạp danh sách Tỉnh/Thành...</option>';
+        provincesLoadedPromise = fetch(URL_PROVINCES)
+            .then(res => res.json())
+            .then(json => {
+                const provinces = json.data || [];
+                provinceSelect.innerHTML = '<option value="">-- Chọn Tỉnh / Thành Phố --</option>';
+                provinces.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = String(p.ProvinceID);
+                    opt.textContent = p.ProvinceName;
+                    provinceSelect.appendChild(opt);
+                });
+                return provinces;
+            })
+            .catch(err => {
+                console.error('Lỗi nạp Tỉnh/Thành GHN:', err);
+                provinceSelect.innerHTML = '<option value="">-- Chọn Tỉnh / Thành Phố --</option>';
+                return [];
+            });
 
-        // Highlight nút đã chọn
-        document.querySelectorAll('.saved-addr-btn').forEach(b => {
-            b.classList.remove('border-blue-500', 'bg-blue-50/80', 'dark:bg-blue-950/30');
-            b.classList.add('border-slate-200', 'dark:border-slate-700');
-        });
-        event.currentTarget.classList.remove('border-slate-200', 'dark:border-slate-700');
-        event.currentTarget.classList.add('border-blue-500', 'bg-blue-50/80', 'dark:bg-blue-950/30');
+        return provincesLoadedPromise;
+    }
 
-        // Auto-select tỉnh/huyện/xã trong dropdowns nếu có data
-        if (addr.to_province_id) {
-            autoSelectGHNAddress(addr.to_province_id, addr.to_district_id, addr.to_ward_code);
+    // Load Quận/Huyện theo Tỉnh (trả về Promise)
+    async function loadDistricts(provinceId, targetDistrictId = null) {
+        const districtSelect = document.getElementById('district_select');
+        const wardSelect = document.getElementById('ward_select');
+        if (!districtSelect) return;
+
+        districtSelect.innerHTML = '<option value="">⏳ Đang nạp Quận/Huyện...</option>';
+        districtSelect.disabled = true;
+        if (wardSelect) {
+            wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã --</option>';
+            wardSelect.disabled = true;
+        }
+        document.getElementById('district_name').value = '';
+        document.getElementById('ward_name').value = '';
+        resetShippingFeeDisplay();
+
+        if (!provinceId) {
+            districtSelect.innerHTML = '<option value="">-- Chọn Quận / Huyện --</option>';
+            return;
+        }
+
+        try {
+            const res = await fetch(`${URL_DISTRICTS_BASE}/${provinceId}`);
+            const json = await res.json();
+            const districts = json.data || [];
+
+            districtSelect.innerHTML = '<option value="">-- Chọn Quận / Huyện --</option>';
+            districts.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = String(d.DistrictID);
+                opt.textContent = d.DistrictName;
+                districtSelect.appendChild(opt);
+            });
+            districtSelect.disabled = false;
+
+            if (targetDistrictId) {
+                districtSelect.value = String(targetDistrictId);
+                const opt = districtSelect.options[districtSelect.selectedIndex];
+                if (opt && opt.value) {
+                    document.getElementById('district_name').value = opt.text;
+                }
+            }
+        } catch (err) {
+            console.error('Lỗi nạp Quận/Huyện:', err);
+            districtSelect.innerHTML = '<option value="">-- Chọn Quận / Huyện --</option>';
         }
     }
 
-    // Auto chọn tỉnh -> huyện -> xã theo GHN dropdown
-    async function autoSelectGHNAddress(provinceId, districtId, wardCode) {
-        const provinceSelect = document.getElementById('province_select');
+    // Load Phường/Xã theo Quận/Huyện (trả về Promise)
+    async function loadWards(districtId, targetWardCode = null) {
         const districtSelect = document.getElementById('district_select');
         const wardSelect = document.getElementById('ward_select');
+        if (!wardSelect) return;
 
-        // Chọn tỉnh
-        provinceSelect.value = provinceId;
-        provinceSelect.dispatchEvent(new Event('change'));
+        wardSelect.innerHTML = '<option value="">⏳ Đang nạp Phường/Xã...</option>';
+        wardSelect.disabled = true;
+        document.getElementById('ward_name').value = '';
+        resetShippingFeeDisplay();
 
-        // Đợi districts load xong rồi chọn huyện
-        await new Promise(resolve => setTimeout(resolve, 800));
-        if (districtId) {
-            districtSelect.value = districtId;
-            districtSelect.dispatchEvent(new Event('change'));
+        if (!districtId) {
+            wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã --</option>';
+            return;
         }
 
-        // Đợi wards load xong rồi chọn xã
-        await new Promise(resolve => setTimeout(resolve, 800));
-        if (wardCode) {
-            wardSelect.value = wardCode;
-            wardSelect.dispatchEvent(new Event('change'));
+        try {
+            const res = await fetch(`${URL_WARDS_BASE}/${districtId}`);
+            const json = await res.json();
+            const wards = json.data || [];
+
+            wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã --</option>';
+            wards.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = String(w.WardCode);
+                opt.textContent = w.WardName;
+                wardSelect.appendChild(opt);
+            });
+            wardSelect.disabled = false;
+
+            if (targetWardCode) {
+                wardSelect.value = String(targetWardCode);
+                const opt = wardSelect.options[wardSelect.selectedIndex];
+                if (opt && opt.value) {
+                    document.getElementById('ward_name').value = opt.text;
+                }
+                await calculateGHNShippingFee(districtId, String(targetWardCode));
+            }
+        } catch (err) {
+            console.error('Lỗi nạp Phường/Xã:', err);
+            wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã --</option>';
+        }
+    }
+
+    // ================= SỔ ĐỊA CHỈ ĐÃ LƯU - FILL FORM 1-CLICK =================
+    async function applySavedAddress(addr, btn = null) {
+        if (isApplyingAddress) return;
+        isApplyingAddress = true;
+
+        if (btn) {
+            btn.classList.add('opacity-70', 'pointer-events-none');
+        }
+
+        try {
+            // Fill thông tin người nhận
+            const nameInput = document.querySelector('input[name="customer_name"]');
+            const phoneInput = document.querySelector('input[name="customer_phone"]');
+            const addressInput = document.getElementById('input_address');
+
+            if (nameInput && addr.recipient_name) nameInput.value = addr.recipient_name;
+            if (phoneInput && addr.phone) phoneInput.value = addr.phone;
+            if (addressInput && addr.address_line) addressInput.value = addr.address_line;
+
+            // Fill hidden values
+            document.getElementById('province_name').value = addr.province_name || '';
+            document.getElementById('district_name').value = addr.district_name || '';
+            document.getElementById('ward_name').value = addr.ward_name || '';
+
+            // Highlight nút đã chọn
+            document.querySelectorAll('.saved-addr-btn').forEach(b => {
+                b.classList.remove('border-blue-500', 'bg-blue-50/80', 'dark:bg-blue-950/30');
+                b.classList.add('border-slate-200', 'dark:border-slate-700');
+            });
+            if (btn) {
+                btn.classList.remove('border-slate-200', 'dark:border-slate-700');
+                btn.classList.add('border-blue-500', 'bg-blue-50/80', 'dark:bg-blue-950/30');
+            }
+
+            // Đảm bảo Tỉnh/Thành đã load xong
+            if (provincesLoadedPromise) {
+                await provincesLoadedPromise;
+            }
+
+            const provinceSelect = document.getElementById('province_select');
+            if (addr.to_province_id && provinceSelect) {
+                provinceSelect.value = String(addr.to_province_id);
+                const pOpt = provinceSelect.options[provinceSelect.selectedIndex];
+                if (pOpt && pOpt.value) {
+                    document.getElementById('province_name').value = pOpt.text;
+                }
+
+                // Load Huyện tuần tự
+                if (addr.to_district_id) {
+                    await loadDistricts(addr.to_province_id, addr.to_district_id);
+
+                    // Load Xã tuần tự & tự động tính phí GHN
+                    if (addr.to_ward_code) {
+                        await loadWards(addr.to_district_id, addr.to_ward_code);
+                    }
+                }
+            }
+        } finally {
+            if (btn) {
+                btn.classList.remove('opacity-70', 'pointer-events-none');
+            }
+            isApplyingAddress = false;
         }
     }
 
     // ================= 1. GHN EXPRESS 3 CẤP ĐỊA LÝ & TÍNH PHÍ =================
-    async function initGHNLocations() {
+    function initGHNLocations() {
         const provinceSelect = document.getElementById('province_select');
         const districtSelect = document.getElementById('district_select');
         const wardSelect = document.getElementById('ward_select');
 
         if (!provinceSelect) return;
 
-        // Load danh sách Tỉnh/Thành từ GHN API
-        try {
-            provinceSelect.innerHTML = '<option value="">⏳ Đang nạp danh sách Tỉnh/Thành...</option>';
-            const res = await fetch(URL_PROVINCES);
-            const json = await res.json();
-            const provinces = json.data || [];
+        // Khởi động load danh sách Tỉnh/Thành
+        loadProvinces();
 
-            provinceSelect.innerHTML = '<option value="">-- Chọn Tỉnh / Thành Phố --</option>';
-            provinces.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.ProvinceID;
-                opt.textContent = p.ProvinceName;
-                provinceSelect.appendChild(opt);
-            });
-        } catch (err) {
-            console.error('Lỗi nạp Tỉnh/Thành GHN:', err);
-            provinceSelect.innerHTML = '<option value="">-- Chọn Tỉnh / Thành Phố --</option>';
-        }
-
-        // Sự kiện khi chọn Tỉnh/Thành
+        // Sự kiện khi người dùng tự tay chọn Tỉnh/Thành
         provinceSelect.addEventListener('change', async function () {
+            if (isApplyingAddress) return;
             const provinceId = this.value;
-            const provinceText = this.options[this.selectedIndex]?.text || '';
-            document.getElementById('province_name').value = provinceId ? provinceText : '';
-
-            // Reset Huyện & Xã
-            districtSelect.innerHTML = '<option value="">-- Chọn Quận / Huyện --</option>';
-            districtSelect.disabled = true;
-            wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã --</option>';
-            wardSelect.disabled = true;
-            document.getElementById('district_name').value = '';
-            document.getElementById('ward_name').value = '';
-            resetShippingFeeDisplay();
-
-            if (!provinceId) return;
-
-            try {
-                districtSelect.innerHTML = '<option value="">⏳ Đang nạp Quận/Huyện...</option>';
-                const res = await fetch(`${URL_DISTRICTS_BASE}/${provinceId}`);
-                const json = await res.json();
-                const districts = json.data || [];
-
-                districtSelect.innerHTML = '<option value="">-- Chọn Quận / Huyện --</option>';
-                districts.forEach(d => {
-                    const opt = document.createElement('option');
-                    opt.value = d.DistrictID;
-                    opt.textContent = d.DistrictName;
-                    districtSelect.appendChild(opt);
-                });
-                districtSelect.disabled = false;
-            } catch (err) {
-                console.error('Lỗi nạp Quận/Huyện:', err);
-                districtSelect.innerHTML = '<option value="">-- Chọn Quận / Huyện --</option>';
-            }
+            const opt = this.options[this.selectedIndex];
+            document.getElementById('province_name').value = (provinceId && opt) ? opt.text : '';
+            await loadDistricts(provinceId);
         });
 
-        // Sự kiện khi chọn Quận/Huyện
+        // Sự kiện khi người dùng tự tay chọn Quận/Huyện
         districtSelect.addEventListener('change', async function () {
+            if (isApplyingAddress) return;
             const districtId = this.value;
-            const districtText = this.options[this.selectedIndex]?.text || '';
-            document.getElementById('district_name').value = districtId ? districtText : '';
-
-            // Reset Xã
-            wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã --</option>';
-            wardSelect.disabled = true;
-            document.getElementById('ward_name').value = '';
-            resetShippingFeeDisplay();
-
-            if (!districtId) return;
-
-            try {
-                wardSelect.innerHTML = '<option value="">⏳ Đang nạp Phường/Xã...</option>';
-                const res = await fetch(`${URL_WARDS_BASE}/${districtId}`);
-                const json = await res.json();
-                const wards = json.data || [];
-
-                wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã --</option>';
-                wards.forEach(w => {
-                    const opt = document.createElement('option');
-                    opt.value = w.WardCode;
-                    opt.textContent = w.WardName;
-                    wardSelect.appendChild(opt);
-                });
-                wardSelect.disabled = false;
-            } catch (err) {
-                console.error('Lỗi nạp Phường/Xã:', err);
-                wardSelect.innerHTML = '<option value="">-- Chọn Phường / Xã --</option>';
-            }
+            const opt = this.options[this.selectedIndex];
+            document.getElementById('district_name').value = (districtId && opt) ? opt.text : '';
+            await loadWards(districtId);
         });
 
-        // Sự kiện khi chọn Phường/Xã -> Tính cước GHN Express tức thì
+        // Sự kiện khi người dùng tự tay chọn Phường/Xã -> Tính cước GHN Express tức thì
         wardSelect.addEventListener('change', async function () {
+            if (isApplyingAddress) return;
             const wardCode = this.value;
-            const wardText = this.options[this.selectedIndex]?.text || '';
-            document.getElementById('ward_name').value = wardCode ? wardText : '';
+            const opt = this.options[this.selectedIndex];
+            document.getElementById('ward_name').value = (wardCode && opt) ? opt.text : '';
 
             if (!wardCode) {
                 resetShippingFeeDisplay();
