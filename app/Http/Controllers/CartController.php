@@ -21,16 +21,19 @@ class CartController extends Controller
         $product = Product::findOrFail($id);
         $cart = session()->get('cart', []);
 
+        $quantity = max(1, (int) $request->input('quantity', 1));
+        $variantId = $request->input('variant_id');
+
         // Xác định biến thể và kiểm tra tồn kho chính xác từ Database
         $variant = null;
-        if ($variantId) {
+        if (!empty($variantId)) {
             $variant = \App\Models\ProductVariant::find($variantId);
             if (!$variant || $variant->product_id != $id) {
                 return redirect()->back()->with('error', 'Phiên bản sản phẩm không hợp lệ.');
             }
         }
 
-        $availableStock = $variant ? (int) $variant->stock : (int) $product->stock;
+        $availableStock = $variant ? (int) $variant->stock : (int) ($product->stock ?? 10);
         if ($availableStock <= 0) {
             return redirect()->back()->with('error', "Sản phẩm \"{$product->name}\" hiện đã hết hàng trong kho.");
         }
