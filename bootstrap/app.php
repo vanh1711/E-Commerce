@@ -35,6 +35,9 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
+            if ($e instanceof \Illuminate\Validation\ValidationException || $e instanceof \Illuminate\Auth\AuthenticationException) {
+                return null;
+            }
             if ($request->is('admin*') || $request->is('login')) {
                 return response(
                     "<div style='font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;padding:30px;background:#0f172a;color:#f8fafc;min-height:100vh;box-sizing:border-box;'>" .
