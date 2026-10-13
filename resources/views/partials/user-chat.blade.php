@@ -56,15 +56,7 @@
         <!-- ========================================================================= -->
         <div id="ai-chat-panel" class="flex-1 flex flex-col min-h-0">
             
-            <!-- AI Subheader Notice with Fast Link to Admin -->
-            <div class="px-4 py-2 bg-blue-50/80 dark:bg-blue-950/40 border-b border-blue-100 dark:border-blue-900/60 flex items-center justify-between text-[11px] font-semibold text-blue-700 dark:text-blue-300 flex-shrink-0">
-                <span class="flex items-center gap-1.5">
-                    <span>⚡</span> Trả lời tự động 24/7
-                </span>
-                <button type="button" onclick="switchChatMode('admin')" class="font-bold underline hover:text-blue-900 dark:hover:text-blue-100 flex items-center gap-0.5">
-                    <span>Gặp nhân viên</span> <span>→</span>
-                </button>
-            </div>
+
 
             <!-- AI Message History Container -->
             <div id="ai-messages-list" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/90 dark:bg-slate-950/90 text-xs transition-colors duration-200"
@@ -122,15 +114,7 @@
         <!-- ========================================================================= -->
         <div id="admin-chat-panel" class="flex-1 flex flex-col min-h-0" style="display: none;">
             
-            <!-- Admin Subheader Notice -->
-            <div class="px-4 py-2 bg-emerald-50/80 dark:bg-emerald-950/40 border-b border-emerald-100 dark:border-emerald-900/60 flex items-center justify-between text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 flex-shrink-0">
-                <span class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Kết nối trực tiếp với Quản Trị Viên
-                </span>
-                <button type="button" onclick="switchChatMode('ai')" class="font-bold underline hover:text-emerald-900 dark:hover:text-emerald-100 flex items-center gap-0.5">
-                    <span>Dùng Trợ lý AI</span> <span>→</span>
-                </button>
-            </div>
+
 
             @auth
                 <!-- Khách đã đăng nhập: Lịch sử tin nhắn với Admin -->
@@ -429,7 +413,6 @@ function appendAiMessageBubble(sender, data) {
                                 <span class="block font-bold text-[11px] text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">${escapeChatHtml(c.name)}</span>
                                 <span class="block text-[9px] text-slate-400 font-medium">${c.products_count} sản phẩm</span>
                             </div>
-                            <span class="text-[10px] text-slate-300 dark:text-slate-600 group-hover:text-blue-500">→</span>
                         </button>
                     `).join('')}
                 </div>
@@ -448,7 +431,6 @@ function appendAiMessageBubble(sender, data) {
                                 <span class="block font-extrabold text-[11px] text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">${escapeChatHtml(u.label)}</span>
                                 <span class="block text-[10px] text-slate-400 truncate">${escapeChatHtml(u.desc)}</span>
                             </div>
-                            <span class="text-xs text-blue-500">→</span>
                         </button>
                     `).join('')}
                 </div>
