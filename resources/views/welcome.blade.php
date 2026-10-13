@@ -134,14 +134,13 @@
             transition: background-color 5000s ease-in-out 0s;
         }
         
-        /* 3D Tilt & Parallax Physics */
-        .perspective-container {
-            perspective: 1000px;
+        /* Card Hover Elevation Physics */
+        .product-card {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+            will-change: transform, box-shadow;
         }
-        .tilt-card {
-            transform-style: preserve-3d;
-            transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease-out;
-            will-change: transform;
+        .product-card:hover {
+            transform: translateY(-8px);
         }
         .parallax-hero-img {
             will-change: transform;
@@ -164,7 +163,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .tilt-card, .parallax-hero-img, .parallax-glow, .reveal-on-scroll {
+            .product-card, .parallax-hero-img, .parallax-glow, .reveal-on-scroll {
                 transition: none !important;
                 transform: none !important;
                 opacity: 1 !important;
@@ -638,12 +637,12 @@
 
 
         <!-- 4. LƯỚI SẢN PHẨM CARD BOX SANG TRỌNG (FLAGSHIP GRADIENT & MODERN SLATE PALETTE) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7 perspective-container" id="productGrid">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7" id="productGrid">
             @forelse($products as $product)
                 @php 
                     $needsClasses = implode(' ', array_map(fn($t) => 'need-' . $t, $product->needs_tags)); 
                 @endphp
-                <div class="product-card tilt-card reveal-on-scroll cat-{{ $product->category_id }} {{ $needsClasses }} relative bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-300 flex flex-col group p-5 overflow-hidden"
+                <div class="product-card reveal-on-scroll cat-{{ $product->category_id }} {{ $needsClasses }} relative bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-2xl hover:shadow-blue-500/15 hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-300 flex flex-col group p-5 overflow-hidden"
                      data-id="{{ $product->id }}"
                      data-name="{{ $product->name }}"
                      data-price="{{ number_format($product->price) }} đ"
@@ -651,10 +650,8 @@
                      data-brand="{{ $product->brand ?? 'PhoneStore' }}">
                     
                     <!-- Badges Top Floating -->
+                    @if(in_array('gaming', $product->needs_tags) || in_array('camera', $product->needs_tags))
                     <div class="absolute top-3.5 left-3.5 z-10 flex flex-col gap-1.5 items-start">
-                        <span class="inline-flex items-center gap-1 bg-gradient-to-r from-rose-600 to-red-600 text-white text-[11px] font-black px-2.5 py-1 rounded-full shadow-sm">
-                            🔥 Giảm {{ rand(10, 30) }}%
-                        </span>
                         @if(in_array('gaming', $product->needs_tags))
                             <span class="inline-flex items-center gap-1 bg-indigo-600/95 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
                                 🎮 Chiến Game
@@ -665,6 +662,7 @@
                             </span>
                         @endif
                     </div>
+                    @endif
                     
                     <div class="absolute top-3.5 right-3.5 z-10 flex items-center gap-1.5">
                         <!-- Nút Thêm vào So Sánh Specs Nhanh -->
@@ -673,15 +671,12 @@
                                 title="Thêm vào bảng so sánh">
                             ⚖️
                         </button>
-                        <button class="w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800 backdrop-blur-md border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:scale-110 shadow-sm transition" aria-label="Yêu thích">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                        </button>
                     </div>
 
                     <!-- Product Image Container -->
                     <a href="{{ route('products.show', $product->id) }}" class="block relative pt-7 pb-3 h-[210px] flex justify-center items-center">
                         <div class="w-full h-full rounded-2xl bg-slate-50 dark:bg-slate-800/60 p-4 flex items-center justify-center border border-slate-100 dark:border-slate-800 shadow-inner group-hover:bg-white dark:group-hover:bg-slate-800 transition-colors duration-300">
-                            <img src="{{ $product->image_url }}" class="max-h-[160px] max-w-full object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-md" alt="{{ $product->name }}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80'">
+                            <img src="{{ $product->image_url }}" class="max-h-[160px] max-w-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-md" alt="{{ $product->name }}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=400&q=80'">
                         </div>
                     </a>
 
@@ -705,7 +700,6 @@
                         <!-- Prices -->
                         <div class="mt-2.5 flex items-baseline gap-2 flex-wrap">
                             <span class="text-rose-600 dark:text-rose-400 font-black text-lg tracking-tight">{{ number_format($product->price) }}đ</span>
-                            <span class="text-slate-400 text-xs line-through font-medium">{{ number_format($product->price * 1.2) }}đ</span>
                         </div>
 
                         <!-- Specs (Ram/Rom/Screen) -->
@@ -1297,30 +1291,6 @@
             });
         }, { passive: true });
 
-        // B. 3D Tilt Physics cho Thẻ Sản Phẩm (Interactive Micro-Interaction)
-        function init3DTiltCards() {
-            const cards = document.querySelectorAll('.tilt-card');
-            cards.forEach(card => {
-                card.addEventListener('mousemove', function(e) {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left; // Tọa độ X trong card
-                    const y = e.clientY - rect.top;  // Tọa độ Y trong card
-                    
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    
-                    const rotateX = ((y - centerY) / centerY) * -7; // Tối đa nghiêng 7 độ
-                    const rotateY = ((x - centerX) / centerX) * 7;
-                    
-                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.02)`;
-                });
-
-                card.addEventListener('mouseleave', function() {
-                    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1)';
-                });
-            });
-        }
-
         // C. Scroll Reveal Animation liên tục (Intersection Observer lặp lại khi cuộn)
         function initScrollReveal() {
             const observer = new IntersectionObserver((entries) => {
@@ -1345,7 +1315,6 @@
 
         // Khởi động các tương tác
         document.addEventListener('DOMContentLoaded', function() {
-            init3DTiltCards();
             initScrollReveal();
             renderCompareDock();
         });
