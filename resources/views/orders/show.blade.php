@@ -66,7 +66,7 @@
         <div class="flex flex-wrap items-center gap-3">
             @if($order->payment_method === 'momo' && $order->payment_status !== 'paid' && $order->shipping_status !== 'cancelled')
             <a href="{{ route('orders.momo.pay', $order->id) }}" class="px-4 py-2 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-black text-xs rounded-full shadow-lg shadow-pink-500/25 transition flex items-center gap-1.5 cursor-pointer">
-                <span>💳</span> Thanh Toán MoMo (QR Code)
+                <span>💳</span> Thanh Toán MoMo (Thẻ ATM Test)
             </a>
             <form action="{{ route('orders.momo.simulate-success', $order->id) }}" method="POST" class="inline">
                 @csrf
@@ -319,7 +319,7 @@
 
             @if($order->payment_method === 'momo' && $order->payment_status !== 'paid' && $order->shipping_status !== 'cancelled')
             <a href="{{ route('orders.momo.pay', $order->id) }}" class="w-full py-3 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-black text-xs rounded-2xl shadow-lg shadow-pink-500/25 transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
-                <span>💳</span> Thanh Toán Qua Ví MoMo (QR Code)
+                <span>💳</span> Thanh Toán Qua Cổng MoMo (Thẻ ATM Test)
             </a>
             <form action="{{ route('orders.momo.simulate-success', $order->id) }}" method="POST" class="w-full">
                 @csrf
