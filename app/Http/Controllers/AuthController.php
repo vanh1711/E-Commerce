@@ -59,8 +59,8 @@ class AuthController extends Controller
         return view('auth.register'); // Trả về file resources/views/auth/register.blade.php
     }
 
-    // 4. Xử lý đăng ký (Tự động kích hoạt tài khoản ngay, không cần mã OTP)
-    public function register(Request $request)
+    // 4. Xử lý đăng ký (Gửi mã OTP xác thực email khi đăng ký)
+    public function register(Request $request, \App\Services\OtpVerificationService $otpService)
     {
         $request->validate([
             'name'     => 'required|string|max:255',
@@ -69,16 +69,18 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name'              => $request->name,
-            'email'             => $request->email,
-            'password'          => Hash::make($request->password),
-            'role'              => 'user', // Mặc định role là user
-            'email_verified_at' => now(), // Đã kích hoạt sẵn, không cần gửi hay nhập mã OTP
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role'     => 'user', // Mặc định role là user
         ]);
 
         Auth::login($user);
 
-        return redirect()->route('home')->with('success', 'Đăng ký tài khoản thành công! Bạn có thể bắt đầu mua sắm và đặt hàng ngay.');
+        // Gửi mã OTP xác thực qua email khi đăng ký
+        $otpService->sendOtp($user);
+
+        return redirect()->route('verification.notice')->with('success', 'Đăng ký thành công! Vui lòng nhập mã OTP xác thực để kích hoạt tài khoản.');
     }
 
     /**
