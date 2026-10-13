@@ -359,7 +359,7 @@
                             </div>
                             <div>
                                 <h4 class="text-xs font-black text-slate-900 dark:text-white">Thanh toán qua Cổng MoMo Sandbox (Môi trường Thử nghiệm)</h4>
-                                <p class="text-[11px] text-slate-600 dark:text-slate-400">Sau khi bấm <strong>"Xác Nhận Đặt Hàng"</strong>, bạn sẽ được chuyển hướng sang giao diện MoMo để quẹt thẻ / nhập mã OTP.</p>
+                                <p class="text-[11px] text-slate-600 dark:text-slate-400">Sau khi bấm <strong>"Xác Nhận Đặt Hàng"</strong>, bạn sẽ được chuyển hướng sang giao diện MoMo để hoàn tất thanh toán.</p>
                             </div>
                         </div>
 

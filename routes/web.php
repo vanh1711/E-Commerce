@@ -95,8 +95,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/email/verification-notification', [AuthController::class, 'resendOtp'])->middleware(['throttle:6,1'])->name('verification.send');
 });
 
-// 3.1. VERIFIED USER ROUTES (Bắt buộc ĐÃ ĐĂNG NHẬP VÀ ĐÃ XÁC THỰC EMAIL - Fix lỗi #6)
-Route::middleware(['auth', 'verified'])->group(function () {
+// 3.1. USER ROUTES (Bắt buộc ĐÃ ĐĂNG NHẬP)
+Route::middleware(['auth'])->group(function () {
     // ===== ROUTES GIỎ HÀNG =====
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
