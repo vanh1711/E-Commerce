@@ -13,7 +13,7 @@
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tạo nhóm thương hiệu mới cho hệ sinh thái sản phẩm PhoneStore.</p>
         </div>
         <a href="{{ route('categories.index') }}" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl transition flex items-center gap-1.5">
-            ← Quay Lại
+            Quay Lại
         </a>
     </div>
 

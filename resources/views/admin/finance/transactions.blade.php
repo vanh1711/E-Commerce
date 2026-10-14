@@ -100,8 +100,8 @@
                     <select name="sort" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500 cursor-pointer">
                         <option value="newest" {{ request('sort', 'newest') === 'newest' ? 'selected' : '' }}>Mới nhất trước</option>
                         <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>Cũ nhất trước</option>
-                        <option value="amount_desc" {{ request('sort') === 'amount_desc' ? 'selected' : '' }}>Giá trị: Cao → Thấp</option>
-                        <option value="amount_asc" {{ request('sort') === 'amount_asc' ? 'selected' : '' }}>Giá trị: Thấp → Cao</option>
+                        <option value="amount_desc" {{ request('sort') === 'amount_desc' ? 'selected' : '' }}>Giá trị: Cao đến Thấp</option>
+                        <option value="amount_asc" {{ request('sort') === 'amount_asc' ? 'selected' : '' }}>Giá trị: Thấp đến Cao</option>
                     </select>
                 </div>
 

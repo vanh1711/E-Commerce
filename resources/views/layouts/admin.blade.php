@@ -282,12 +282,11 @@
                         <span class="px-3 text-[10px] font-black uppercase text-slate-400 tracking-wider">Cửa Hàng Bán Lẻ</span>
                         <div class="mt-2 space-y-1">
                             <a href="{{ route('home') }}" target="_blank"
-                               class="flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-slate-300 hover:bg-slate-800/80 hover:text-cyan-400 transition-all duration-200 group">
+                               class="flex items-center px-3.5 py-2.5 rounded-2xl text-slate-300 hover:bg-slate-800/80 hover:text-cyan-400 transition-all duration-200 group">
                                 <div class="flex items-center gap-3">
                                     <span class="text-base">🌐</span>
                                     <span>Xem Web Bán Lẻ</span>
                                 </div>
-                                <span class="text-xs text-slate-400 group-hover:text-cyan-400 transition">↗</span>
                             </a>
                         </div>
                     </div>
@@ -367,7 +366,6 @@
                        title="Mở website bán lẻ trong tab mới">
                         <span>🌐</span>
                         <span>Xem Web Bán Lẻ</span>
-                        <span class="text-[10px] text-slate-400">↗</span>
                     </a>
 
                     <!-- Nút Dark / Light Mode -->
@@ -414,9 +412,8 @@
                                 <a href="{{ route('categories.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                                     <span>📁</span> Quản lý Danh mục
                                 </a>
-                                <a href="{{ route('home') }}" target="_blank" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                                <a href="{{ route('home') }}" target="_blank" class="flex items-center px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition">
                                     <span class="flex items-center gap-2"><span>🌐</span> Xem Web Bán Lẻ</span>
-                                    <span class="text-[10px] text-slate-400">↗</span>
                                 </a>
                             </div>
                             <div class="p-1 pt-1.5 border-t border-slate-100 dark:border-slate-800">

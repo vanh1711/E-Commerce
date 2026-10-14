@@ -750,9 +750,6 @@
                 <button type="button" id="loadMoreBtn" onclick="loadMoreProducts()" 
                         class="group inline-flex items-center gap-2.5 px-8 py-3.5 bg-white dark:bg-slate-900 hover:bg-slate-900 dark:hover:bg-blue-600 text-slate-800 dark:text-slate-200 hover:text-white rounded-full font-extrabold text-xs uppercase tracking-wider border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
                     <span id="loadMoreBtnText">Xem thêm sản phẩm</span>
-                    <span class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 group-hover:bg-slate-800 dark:group-hover:bg-blue-700 text-slate-600 dark:text-slate-300 group-hover:text-white text-xs flex items-center justify-center transition">
-                        ↓
-                    </span>
                 </button>
                 
                 <p id="productCounterText" class="text-xs font-semibold text-slate-400">

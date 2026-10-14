@@ -21,7 +21,7 @@
                 + Thêm Sản Phẩm Thuộc Nhóm
             </a>
             <a href="{{ route('categories.index') }}" class="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-2xl transition">
-                ← Danh Sách
+                Danh Sách
             </a>
         </div>
     </div>

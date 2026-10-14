@@ -129,7 +129,6 @@
                                     </div>
                                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{{ $addr->full_address }}</p>
                                 </div>
-                                <span class="text-xs text-slate-300 dark:text-slate-600 group-hover:text-blue-500 transition ml-2">→</span>
                             </div>
                         </button>
                         @endforeach

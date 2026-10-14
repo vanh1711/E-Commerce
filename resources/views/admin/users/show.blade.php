@@ -67,7 +67,7 @@
             </a>
             <a href="{{ route('admin.users.index') }}" 
                class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-2xl transition">
-                ← Danh Sách
+                Danh Sách
             </a>
         </div>
     </div>
@@ -145,7 +145,7 @@
                             </td>
                             <td class="py-3 text-right">
                                 <a href="{{ route('admin.orders.show', $order->id) }}" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">
-                                    Xem →
+                                    Xem
                                 </a>
                             </td>
                         </tr>

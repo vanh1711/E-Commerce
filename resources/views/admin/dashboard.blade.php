@@ -132,8 +132,8 @@
                     </h3>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Danh sách các đơn đặt hàng mới nhất cần điều phối giao hàng</p>
                 </div>
-                <a href="{{ route('admin.orders.index') }}" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1">
-                    <span>Xem tất cả {{ $totalOrders }} đơn</span> <span>→</span>
+                <a href="{{ route('admin.orders.index') }}" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center">
+                    <span>Xem tất cả {{ $totalOrders }} đơn</span>
                 </a>
             </div>
 
@@ -201,8 +201,8 @@
                                 </td>
 
                                 <td class="py-3.5 text-right">
-                                    <a href="{{ route('admin.orders.show', $ord->id) }}" class="px-3 py-1 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/80 text-blue-700 dark:text-blue-300 font-bold rounded-xl transition text-[11px] inline-flex items-center gap-1">
-                                        Chi tiết <span>→</span>
+                                    <a href="{{ route('admin.orders.show', $ord->id) }}" class="px-3 py-1 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/80 text-blue-700 dark:text-blue-300 font-bold rounded-xl transition text-[11px] inline-flex items-center">
+                                        Chi tiết
                                     </a>
                                 </td>
                             </tr>
